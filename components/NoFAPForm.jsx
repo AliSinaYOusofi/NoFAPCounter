@@ -20,13 +20,25 @@ const saveNofapDataAction = async (formData) => {
 
         if (response.ok) {
             const json = await response.json();
+            
+            const token = json.token
+
+            localStorage.setItem("token", token)
+
             return { success: json.success };
         }
 
+        if (response.status === 409) {
+            return {
+                success: false,
+                error: "Username already exists !"
+            }
+        }
         return {
             success: false,
             error: "Failed to submit form"
         };
+
     } catch (error) {
         return {
             success: false,
@@ -38,7 +50,7 @@ const saveNofapDataAction = async (formData) => {
 const validateForm = (formData) => {
     const errors = {};
 
-    if (usernameValidator(formData.get("username"))) {
+    if (!usernameValidator(formData.get("username"))) {
         errors.username = "Username is required";
     }
 
