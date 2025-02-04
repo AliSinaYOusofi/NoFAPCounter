@@ -14,15 +14,20 @@
   }
 }
 
-body, .any_card {
+body,
+.any_card {
   color: var(--foreground);
   background-color: #4d4855;
   background-image: linear-gradient(147deg, #4d4855 0%, #000000 74%);
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
 .btn-background {
   background-color: #000000;
   background-image: linear-gradient(315deg, #000000 0%, #434343 74%);
+}
+
+.card_bg {
+  background-color: #4d4855;
+  background-image: linear-gradient(147deg, #4d4855 0%, #000000 74%);
 }
