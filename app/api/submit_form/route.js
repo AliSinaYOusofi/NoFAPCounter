@@ -6,6 +6,7 @@ import { dateValidator } from "@/utils/validators/dateValidator";
 import validator from "validator";
 import { createUsersTable } from "@/database/create_users_table";
 import jwt from "jsonwebtoken";
+import { idValidator } from "@/utils/validators/id_validator";
 
 const secret_key = process.env.SECRET_KEY;
 
@@ -13,7 +14,7 @@ export async function POST(req, res) {
   let db;
 
   try {
-    const { username, startDate, currentStreak, motivationalMessage } =
+    const { username, startDate, currentStreak, motivationalMessage, id } =
       await req.json();
 
     console.log(username, startDate, currentStreak, motivationalMessage);
@@ -24,8 +25,10 @@ export async function POST(req, res) {
     const sanitizedCurrentStreak = validator.escape(currentStreak);
     const sanitizedMotivationalMessage = validator.escape(motivationalMessage);
 
-    if (!sanitizedUsername || !sanitizedStartDate) {
-      console.warn("Username and startDate is empty");
+    const sanitizedID = validator.escape(id)
+
+    if (!sanitizedUsername || !sanitizedStartDate || !sanitizedID) {
+      console.warn("Incomplete data provided");
 
       return NextResponse.json(
         {
@@ -36,10 +39,11 @@ export async function POST(req, res) {
         },
       );
     } else if (
-      !usernameValidator(sanitizedUsername) ||
-      !dateValidator(sanitizedStartDate)
+      ! usernameValidator(sanitizedUsername) ||
+      ! dateValidator(sanitizedStartDate) ||
+      ! idValidator(sanitizedID)
     ) {
-      console.warn("Error: Invalid values provided for username and startDate");
+      console.warn("Error: Invalid values provided");
       return NextResponse.json(
         {
           success: false,
@@ -64,9 +68,9 @@ export async function POST(req, res) {
     // create the table
     await createUsersTable();
 
-    const userExists = await db.get(
-      "SELECT username FROM user WHERE username = ?",
-      [sanitizedUsername],
+    const userIdAlreadyExists = await db.get(
+      "SELECT id FROM users WHERE id = ?",
+      [sanitizedID],
       (err, row) => {
         if (err) {
           reject(err);
@@ -76,16 +80,16 @@ export async function POST(req, res) {
       },
     );
 
-    if (userExists) {
-      console.warn("Username already exists");
+    if (userIdAlreadyExists) {
+      console.warn("ID already exists");
 
       return NextResponse.json(
-        { success: false, message: "Username already exists" },
+        { success: false, message: "ID already exists" },
         { status: 409 },
       );
     }
 
-    const query = `INSERT INTO user (username, startDate, currentStreak, motivationalMessage, started_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO users (id, username, startDate, currentStreak, motivationalMessage, started_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     const started_at = new Date().toISOString().split("T")[0];
     const updated_at = new Date().toISOString().split("T")[0];
@@ -93,6 +97,7 @@ export async function POST(req, res) {
     db.run(
       query,
       [
+        sanitizedID,
         sanitizedUsername,
         sanitizedStartDate,
         sanitizedCurrentStreak,
@@ -119,6 +124,7 @@ export async function POST(req, res) {
 
     const token = jwt.sign({ username: sanitizedUsername }, secret_key);
 
+    db.close()
     return NextResponse.json(
       {
         success: true,
@@ -139,7 +145,5 @@ export async function POST(req, res) {
       },
       { status: 500 },
     );
-  } finally {
-    db.close();
   }
 }

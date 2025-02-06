@@ -28,6 +28,7 @@ body,
 }
 
 .card_bg {
-  background-color: #4d4855;
-  background-image: linear-gradient(147deg, #4d4855 0%, #000000 74%);
+  background-color: #111111;
+  background-image: linear-gradient(147deg, #1a1a1a 0%, #000000 74%);
 }
+
