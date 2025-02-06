@@ -10,7 +10,8 @@
     "lint": "next lint",
     "prepare": "husky",
     "pretty": "prettier --check .",
-    "maketItPretty": "prettier --write ."
+    "maketItPretty": "prettier --write .",
+    "test": "echo: 'No test specifed'"
   },
   "dependencies": {
     "jsonwebtoken": "^9.0.2",

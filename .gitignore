@@ -54,3 +54,5 @@ coverage/
 
 # Windows specific files
 Thumbs.db
+
+.husky

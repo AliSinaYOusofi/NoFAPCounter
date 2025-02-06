@@ -12,8 +12,9 @@ import { usernameValidator } from "@/utils/validators/usernameValidator";
 import { currentSreakValidator } from "@/utils/validators/currentStreakValidator";
 import { dateValidator } from "@/utils/validators/dateValidator";
 import { motion, AnimatePresence } from "framer-motion";
+import { idValidator } from "@/utils/validators/id_validator";
+import { useRouter } from "next/navigation";
 
-// TODO: start animating the form and choose a background
 
 const saveNofapDataAction = async (formData) => {
   try {
@@ -31,7 +32,7 @@ const saveNofapDataAction = async (formData) => {
       const token = json.token;
 
       localStorage.setItem("token", token);
-
+      
       return { success: json.success };
     }
 
@@ -68,6 +69,9 @@ const validateForm = (formData) => {
     console.log("what");
     errors.currentStreak = "Current streak should be a number";
   }
+  if (! idValidator(formData.get("id"))) {
+    errors.id  = "Max 12, Min 1, no special chars"
+  }
 
   return errors;
 };
@@ -78,6 +82,8 @@ export function NofapForm({ className }) {
     errors: null,
     pending: false,
   });
+
+  const router = useRouter()
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -96,6 +102,10 @@ export function NofapForm({ className }) {
 
     if (result.success) {
       setState({ success: result.success, errors: null, pending: false });
+      
+      setTimeout( () => {
+        router.push("/dashboard")
+      }, 1000)
     } else {
       setState({
         success: false,
@@ -211,6 +221,26 @@ export function NofapForm({ className }) {
             {state.errors?.username && (
               <p className="text-red-500 text-sm mt-2">
                 {state.errors.username}
+              </p>
+            )}
+          </div>
+
+          <div className="form-control">
+            <label className="label" htmlFor="id">
+              <span className="label-text text-gray-700">ID</span>
+            </label>
+            <input
+              type="text"
+              id="id"
+              name="id"
+              placeholder="number or text"
+              className="input input-bordered bg-gray-100 text-gray-700"
+              required
+              disabled={state.pending}
+            />
+            {state.errors?.id && (
+              <p className="text-red-500 text-sm mt-2">
+                {state.errors.id}
               </p>
             )}
           </div>

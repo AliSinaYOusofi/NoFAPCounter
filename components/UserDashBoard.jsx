@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Award, Calendar, Clock, MessageSquare, User } from "lucide-react";
+import { QuoteShower } from "./QuoteShower";
 
 export function UserDashBoard() {
   const [userData, setUserData] = useState(null);
-  const [errors, setErrors] = useState(null);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -19,7 +18,6 @@ export function UserDashBoard() {
         return;
       }
 
-      console.log(token, " token");
       const response = await fetch("/api/user_data", {
         method: "GET",
         headers: {
@@ -29,10 +27,7 @@ export function UserDashBoard() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data, " Data recieved");
         setUserData(data);
-      } else {
-        // router.push("/login");
       }
     };
 
@@ -41,82 +36,69 @@ export function UserDashBoard() {
 
   if (!userData) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
+      <div className="w-screen h-screen flex items-center justify-center bg-black">
         <span className="loading loading-spinner loading-md"></span>
       </div>
     );
   }
 
   const daysSinceStart = Math.floor(
-    (new Date() - new Date(userData.startDate)) / (1000 * 60 * 60 * 24),
+    (new Date() - new Date(userData.startDate)) / (1000 * 60 * 60 * 24)
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-6 max-w-4xl w-full">
-        <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-          Your NoFap Journey
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <User className="text-blue-500 dark:text-blue-400 mr-2" />
-              <span className="text-lg font-semibold text-blue-800 dark:text-blue-200">
-                Username
-              </span>
+    <div className="h-full w-screen flex md:flex-row flex-col items-start gap-x-2 gap-y-2 justify-center bg-black p-6">
+      <div className="flex h-full flex-col bg-black bg-opacity-80 backdrop-blur-lg rounded-xl p-6 w-full max-w-4xl">
+        {/* <h3 className="text-2xl font-bold text-white text-center">User Dashboard</h3> */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {[
+            {
+              icon: <User size={32} className="text-gray-400" />,
+              label: "Username",
+              value: userData.username,
+            },
+            {
+              icon: <Calendar size={32} className="text-gray-400" />,
+              label: "Start Date",
+              value: new Date(userData.startDate).toLocaleDateString(),
+            },
+            {
+              icon: <Award size={32} className="text-gray-400" />,
+              label: "Current Streak",
+              value: `${userData.currentStreak} days`,
+            },
+            {
+              icon: <Clock size={32} className="text-gray-400" />,
+              label: "Days Since Start",
+              value: `${daysSinceStart} days`,
+            },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="p-6 border border-gray-700 rounded-xl bg-opacity-70 shadow-md flex flex-col items-center text-center hover:shadow-xl transition duration-300"
+            >
+              <div className="mb-3">{item.icon}</div>
+              <span className="text-lg font-semibold text-gray-300">{item.label}</span>
+              <p className="text-xl font-bold text-white">{item.value}</p>
             </div>
-            <p className="text-xl font-bold text-blue-600 dark:text-blue-300">
-              {userData.username}
-            </p>
-          </div>
-          <div className="bg-green-100 dark:bg-green-900 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <Calendar className="text-green-500 dark:text-green-400 mr-2" />
-              <span className="text-lg font-semibold text-green-800 dark:text-green-200">
-                Start Date
-              </span>
-            </div>
-            <p className="text-xl font-bold text-green-600 dark:text-green-300">
-              {new Date(userData.startDate).toLocaleDateString()}
-            </p>
-          </div>
-          <div className="bg-yellow-100 dark:bg-yellow-900 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <Award className="text-yellow-500 dark:text-yellow-400 mr-2" />
-              <span className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">
-                Current Streak
-              </span>
-            </div>
-            <p className="text-xl font-bold text-yellow-600 dark:text-yellow-300">
-              {userData.currentStreak} days
-            </p>
-          </div>
-          <div className="bg-purple-100 dark:bg-purple-900 p-4 rounded-lg">
-            <div className="flex items-center mb-2">
-              <Clock className="text-purple-500 dark:text-purple-400 mr-2" />
-              <span className="text-lg font-semibold text-purple-800 dark:text-purple-200">
-                Days Since Start
-              </span>
-            </div>
-            <p className="text-xl font-bold text-purple-600 dark:text-purple-300">
-              {daysSinceStart} days
-            </p>
-          </div>
+          ))}
         </div>
-        <div className="mt-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
-          <div className="flex items-center mb-2">
-            <MessageSquare className="text-gray-500 dark:text-gray-400 mr-2" />
-            <span className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              Motivational Message
-            </span>
+        <div className="mt-6 p-6 border border-gray-700 rounded-xl  bg-opacity-70 shadow-md">
+          <div className="flex items-center gap-3 mb-3">
+            <MessageSquare size={32} className="text-gray-400" />
+            <span className="text-lg font-semibold text-gray-300">Motivational Message</span>
           </div>
-          <p className="text-gray-600 dark:text-gray-300 italic">
-            "{userData.motivationalMessage || "Stay strong and keep going!"}"
+          <p className="text-gray-400 italic text-center">
+            "{userData.motivationalMessage || 'Stay strong and keep going!'}"
           </p>
         </div>
-        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+        <div className="mt-6 text-sm text-gray-400 text-center">
           <p>Last updated: {new Date(userData.updated_at).toLocaleString()}</p>
         </div>
+      </div>
+      <div className="w-2/3 border h-full p-2 border-gray-700 rounded-xl">
+
+        <QuoteShower />
       </div>
     </div>
   );
