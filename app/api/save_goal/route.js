@@ -2,11 +2,44 @@ import { NextRequest, NextResponse } from "next/server";
 import { createGoalsTable } from "@/database/create_goals_table";
 import validator from 'validator'
 import { openDB } from "@/database/db_connection";
+import { nanoid } from "nanoid";
+import { headers } from "next/headers";
+const secretKey = process.env.SECRET_KEY;
+import jwt from "jsonwebtoken";
 
 export async function POST(req) {
 
     let db
+    let headersList = await headers()
+    
+    const auth_token = headersList.get("Authorization")?.split(" ")[1];
 
+    if (! headersList.has("Authorization")) {
+        return NextResponse.json(
+            { success: false, message: "Missing Authorization header" },
+            { status: 401 },
+        );
+      } 
+    
+    else if (!auth_token) {
+        return NextResponse.json(
+          { success: false, message: "No Authorization token provided" },
+          { status: 400 },
+        );
+    }
+
+    let decoded;
+    console.log(auth_token, ' the auth token', secretKey)
+    try {
+        decoded = jwt.verify(auth_token, secretKey);
+        console.log(decoded)
+    } catch (error) {
+        return NextResponse.json(
+            { success: false, message: "Invalid or expired token" },
+            { status: 401 },
+        );
+    }
+    
     try {
         const {
             goal,
@@ -52,15 +85,18 @@ export async function POST(req) {
 
         await createGoalsTable()
 
-        const query = `INSERT INTO goals (goal, description, created_at) VALUES (?, ?, ?)`;
+        const query = `INSERT INTO goals (id, user_id, goal, description, created_at) VALUES (?, ?, ?, ?, ?)`;
 
         const created_at = new Date().toISOString().split("T")[0]
-        
+        const id = nanoid()
+
         db = await openDB()
 
         db.run(
             query,
             [
+                id,
+                decoded.id,
                 goal,
                 description,
                 created_at

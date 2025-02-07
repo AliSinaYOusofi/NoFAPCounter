@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useToken } from "@/hooks/useToken";
 
 export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [goal, setGoal] = useState("");
@@ -10,24 +12,28 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
+    const router = useRouter()
+    const token = useToken()
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         setPending(true);
         setErrors(null);
 
-        if ( ! String(goal).length) setErrors("Goal can't be empty")
-        else if (! String(goal).length) setErrors("Description can't be empty")
-
+        if ( ! String(goal).length) return setErrors("Goal can't be empty")
+        else if (! String(goal).length) return setErrors("Description can't be empty")
+        else if ( ! token) return router.push('/login')
         try {
             const response = await fetch("/api/save_goal", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ goal, description }),
             });
 
+            console.log(response)
             if (response.ok) {
                 setSuccess(true);
                 setGoal("");

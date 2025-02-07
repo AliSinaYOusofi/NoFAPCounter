@@ -36,8 +36,8 @@ export async function POST(req) {
         }
 
         db = await openDB();
-
-        const user = await new db.get(
+        console.log(sanitizedUsername, sanitizedID)
+        const user = await db.get(
                 "SELECT * FROM users WHERE username = ? AND id = ?",
                 [sanitizedUsername, sanitizedID],
                 (err, row) => {
@@ -64,7 +64,6 @@ export async function POST(req) {
             secret_key
         );
 
-        db.close();
         return NextResponse.json(
             {
                 success: true,

@@ -3,6 +3,7 @@
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Home, BarChart, Award, Target, Users, BookOpen, Lightbulb, Heart, Settings, LogOut } from "lucide-react"
+import handleLogout from "@/utils/handle_logout"
 
 const sidebarVariants = {
   hidden: { opacity: 0, x: -100 },
@@ -75,9 +76,9 @@ export function Sidebar({ isOpen, setIsOpen, onItemClick, activeComponent }) {
             </motion.li>
           ))}
         </motion.ul>
-        <motion.div className="mt-auto" variants={itemVariants} whileHover="hover">
+        <motion.div onClick={handleLogout} className="mt-auto" variants={itemVariants} whileHover="hover">
           <motion.li className="p-2 rounded-lg cursor-pointer flex items-center transition-colors">
-            <LogOut className="w-5 h-5 mr-3" />
+            <LogOut  className="w-5 h-5 mr-3" />
             Logout
           </motion.li>
         </motion.div>
