@@ -3,6 +3,9 @@ import { CreateGoalsCard } from "./CreateGoalsCard";
 import { GoalsCard } from "./GoalsCard";
 import { ArrowUp, ArrowDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useToken } from "@/hooks/useToken";
+import { nanoid } from "nanoid";
 
 export default function Goals() {
     const [goals, setGoals] = useState([]);
@@ -11,16 +14,25 @@ export default function Goals() {
     const [success, setSuccess] = useState(null);
     const [refreshGoalsList, setRefreshGoalsList] = useState(false);
     const [sortOrder, setSortOrder] = useState("desc");
+    const router = useRouter();
+    const token = useToken()
 
     useEffect(() => {
         const fetchGoals = async () => {
             try {
-                const response = await fetch("/api/save_goal");
+                console.log(token, ' the token')
+                const response = await fetch("/api/save_goal", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`
+                    }
+                });
                 if (!response.ok) {
                     throw new Error("Failed to fetch goals");
                 }
                 const data = await response.json();
                 setGoals(data.data);
+                console.log(data.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -32,13 +44,20 @@ export default function Goals() {
     }, [refreshGoalsList]);
 
     const handleDelete = async (id) => {
-
-        if (! id) return setError("No ID provided")
         
+        if (!id) return setError("No ID provided");
+
         try {
+            
+            if (! token) return router.push("/login");
+
             const response = await fetch(`/api/save_goal?id=${id}`, {
                 method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             });
+
             if (!response.ok) {
                 throw new Error("Failed to delete goal");
             }
@@ -52,18 +71,20 @@ export default function Goals() {
     const handleSort = () => {
         const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
         setSortOrder(newSortOrder);
-        setGoals([...goals].sort((a, b) => {
-            if (newSortOrder === "asc") {
-                return new Date(a.created_at) - new Date(b.created_at);
-            } else {
-                return new Date(b.created_at) - new Date(a.created_at);
-            }
-        }));
+        setGoals(
+            [...goals].sort((a, b) => {
+                if (newSortOrder === "asc") {
+                    return new Date(a.created_at) - new Date(b.created_at);
+                } else {
+                    return new Date(b.created_at) - new Date(a.created_at);
+                }
+            })
+        );
     };
 
     useEffect(() => {
         const handleSort = () => {
-            setGoals(goals => [...goals].reverse());
+            setGoals((goals) => [...goals].reverse());
         };
         handleSort();
     }, [sortOrder]);
@@ -73,21 +94,35 @@ export default function Goals() {
             <div className="w-full max-w-6xl flex flex-col md:flex-row gap-8">
                 {/* Create Goal Section */}
                 <div className="w-full md:w-1/3 bg border border-gray-800 card_bg_bottom p-6 rounded-xl shadow-lg">
-                    <h2 className="text-2xl font-bold text-white text-center mb-4">Create a New Goal</h2>
-                    <CreateGoalsCard setRefreshGoalsList={setRefreshGoalsList} />
+                    <h2 className="text-2xl font-bold text-white text-center mb-4">
+                        Create a New Goal
+                    </h2>
+                    <CreateGoalsCard
+                        setRefreshGoalsList={setRefreshGoalsList}
+                    />
                 </div>
 
                 {/* Goals List Section */}
                 <div className="w-full md:w-2/3 bg-black p-6 rounded-xl shadow-lg flex flex-col">
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold text-white">Your Goals</h2>
+                        <h2 className="text-2xl font-bold text-white">
+                            Your Goals
+                        </h2>
                         <motion.button
                             className="flex items-center text-white"
                             onClick={handleSort}
                             whileTap={{ scale: 0.9 }}
                         >
-                            {sortOrder === "asc" ? <ArrowUp className="w-5 h-5" /> : <ArrowDown className="w-5 h-5" />}
-                            <span className="ml-2">{sortOrder === "asc" ? "Ascending" : "Descending"}</span>
+                            {sortOrder === "asc" ? (
+                                <ArrowUp className="w-5 h-5" />
+                            ) : (
+                                <ArrowDown className="w-5 h-5" />
+                            )}
+                            <span className="ml-2">
+                                {sortOrder === "asc"
+                                    ? "Ascending"
+                                    : "Descending"}
+                            </span>
                         </motion.button>
                     </div>
 
@@ -126,13 +161,16 @@ export default function Goals() {
                     </AnimatePresence>
 
                     {/* Goals List */}
-                    <div className="flex-1 overflow-y-auto" style={{ maxHeight: "75vh" }}>
+                    <div
+                        className="flex-1 overflow-y-auto"
+                        style={{ maxHeight: "75vh" }}
+                    >
                         <AnimatePresence>
                             <div className="grid grid-cols-1 gap-4">
                                 {goals.length > 0 ? (
                                     goals.map((goal) => (
                                         <motion.div
-                                            key={goal.id}
+                                            key={nanoid(4)}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             exit={{ opacity: 0, y: 20 }}
@@ -148,7 +186,9 @@ export default function Goals() {
                                         </motion.div>
                                     ))
                                 ) : (
-                                    <p className="text-gray-400">No goals yet. Start by adding one!</p>
+                                    <p className="text-gray-400">
+                                        No goals yet. Start by adding one!
+                                    </p>
                                 )}
                             </div>
                         </AnimatePresence>

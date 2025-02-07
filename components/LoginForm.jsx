@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Check, BadgeAlert, CircleX } from "lucide-react";
+import { Check, BadgeAlert, CircleX, Router } from "lucide-react";
 import { usernameValidator } from "@/utils/validators/usernameValidator";
 import { idValidator } from "@/utils/validators/id_validator";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useRouter } from "next/navigation";
 const loginAction = async (formData) => {
     try {
-        const response = await fetch("/api/login", {
+        const response = await fetch("/api/forward", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export function LoginForm({ className }) {
         errors: null,
         pending: false,
     });
-
+    const router = useRouter()
     const handleSubmit = async (event) => {
         event.preventDefault();
         const formData = new FormData(event.target);
@@ -70,6 +70,7 @@ export function LoginForm({ className }) {
 
         if (result.success) {
             setState({ success: true, errors: null, pending: false });
+            router.push('/dashboard')
         } else {
             setState({
                 success: false,

@@ -7,6 +7,7 @@ import validator from "validator";
 import { createUsersTable } from "@/database/create_users_table";
 import jwt from "jsonwebtoken";
 import { idValidator } from "@/utils/validators/id_validator";
+import { nanoid } from "nanoid";
 
 const secret_key = process.env.SECRET_KEY;
 
@@ -90,7 +91,6 @@ export async function POST(req, res) {
     }
 
     const query = `INSERT INTO users (id, username, startDate, currentStreak, motivationalMessage, started_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-
     const started_at = new Date().toISOString().split("T")[0];
     const updated_at = new Date().toISOString().split("T")[0];
 
@@ -122,9 +122,16 @@ export async function POST(req, res) {
       },
     );
 
-    const token = jwt.sign({ username: sanitizedUsername }, secret_key);
+    const token = jwt.sign(
+      { username: sanitizedUsername, id: sanitizedID }, secret_key,
+      function(error, decod) {
+        if (error) console.error("Error creating token for user", error)
+        else console.log("token: ", decod)
+      }
+    );
 
     db.close()
+
     return NextResponse.json(
       {
         success: true,

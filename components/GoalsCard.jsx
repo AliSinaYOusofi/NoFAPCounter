@@ -3,6 +3,7 @@ import { Clipboard, ClipboardCheck, Edit, Trash2, Maximize, X } from "lucide-rea
 import { motion, AnimatePresence } from "framer-motion";
 
 export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
+    
     const [copied, setCopied] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -17,7 +18,6 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
         setConfirmDelete(true);
     };
 
-    console.log(id, ' id here')
     const confirmDeleteGoal = async () => {
         await onDelete(id);
         setConfirmDelete(false);
@@ -82,6 +82,7 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                     </motion.div>
                 )}
             </AnimatePresence>
+            
             <motion.div
                 className="card_bg border border-gray-800 text-white p-4 rounded-lg shadow-md mb-4 relative"
                 initial={{ opacity: 0, y: 20 }}
