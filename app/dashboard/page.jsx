@@ -5,8 +5,9 @@ import ShowStreakDaysOnly from "@/components/ShowStreakDaysOnly";
 import { Sidebar } from "../../components/Sidebar";
 import { UserDashBoard } from "@/components/UserDashBoard";
 import { useState } from "react";
-import { Menu } from "lucide-react";
+import { Goal, Menu } from "lucide-react";
 import Tips from "@/components/Tips";
+import Goals from "@/components/Goals";
 
 export default function Page() {
   const [isOpen, setIsOpen] = useState(true);
@@ -40,6 +41,7 @@ export default function Page() {
           {activeComponent === 'streak' && <ShowStreakDaysOnly streakDays={4} />}
           {activeComponent === 'dashboard' && <UserDashBoard />}
           {activeComponent === 'tips' && <Tips />}
+          {activeComponent === 'goals' && <Goals />}
         </div>
       </div>
     </div>

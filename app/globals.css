@@ -32,3 +32,17 @@ body,
   background-image: linear-gradient(147deg, #1a1a1a 0%, #000000 74%);
 }
 
+.card_bg_right {
+  background-color: #111111;
+  background-image: linear-gradient(to left, #1a1a1a 0%, #000000 74%);
+}
+
+.card_bg_bottom {
+  background-color: #111111;
+  background-image: linear-gradient(to top, #1a1a1a 0%, #000000 74%);
+}
+
+.card_bg_top {
+  background-color: #111111;
+  background-image: linear-gradient(to bottom, #1a1a1a 0%, #000000 74%);
+}
