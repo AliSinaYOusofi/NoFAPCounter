@@ -38,6 +38,10 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
                 setSuccess(true);
                 setGoal("");
                 setDescription("");
+
+                setTimeout ( () => {
+                    setSuccess(null)
+                }, 2000)
             } else {
                 const errorData = await response.json();
                 setErrors(errorData.message || "Failed to save goal");
@@ -58,11 +62,10 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
         >
-            {/* <h2 className="text-2xl font-bold mb-4 text-white"></h2> */}
             <AnimatePresence>
                 {success && (
                     <motion.div
-                        className="bg-green-300 text-green-800 p-4 rounded-lg w-full flex justify-between items-center"
+                        className="bg-green-400 text-white p-4 rounded-lg w-full flex justify-between items-center"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -79,7 +82,7 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
             <AnimatePresence>
                 {errors && (
                     <motion.div
-                        className="bg-red-300 text-red-800 p-4 rounded-lg w-full flex justify-between items-center"
+                        className="bg-red-400 text-white p-4 rounded-lg w-full flex justify-between items-center"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}

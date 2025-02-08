@@ -1,4 +1,7 @@
+"use client";
+
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Heart } from "lucide-react";
 
 const quotes = [
@@ -45,7 +48,6 @@ export function QuoteShower() {
   const handleSave = async () => {
     setSaved(true);
     
-    // Simulated API request to save quote to database
     try {
       const response = await fetch("/api/save-quote", {
         method: "POST",
@@ -54,7 +56,6 @@ export function QuoteShower() {
       });
 
       if (!response.ok) throw new Error("Failed to save quote");
-
     } catch (error) {
       console.error(error);
       setSaved(false);
@@ -62,35 +63,44 @@ export function QuoteShower() {
   };
 
   return (
-    <blockquote
-      className="relative p-4 text-[#E5E5E5] rounded-lg shadow-md"
-      onClick={handleClick}
-    >
-      <p className="text-lg sm:text-xl italic">"{quotes[index].text}"</p>
-      <footer className="mt-4 flex items-center justify-between">
-        <div className="flex items-center">
-          <img
-            className="w-10 h-10 rounded-full"
-            src={`https://www.gravatar.com/avatar/${btoa(quotes[index].author)}?d=identicon`}
-            alt={quotes[index].author}
-          />
-          <div className="ml-4">
-            <div className="text-base font-semibold text-gray-200">{quotes[index].author}</div>
-            <div className="text-xs text-gray-500">Source</div>
-          </div>
-        </div>
-        <button
-          className={`p-2 rounded-full transition-colors ${
-            saved ? "text-red-500" : "text-gray-500 hover:text-red-400"
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSave();
-          }}
+    <div className="relative">
+      <AnimatePresence mode="wait">
+        <motion.blockquote
+          key={index}
+          className="p-4 text-[#E5E5E5] rounded-lg shadow-md  cursor-pointer"
+          onClick={handleClick}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
         >
-          <Heart fill={saved ? "red" : "none"} size={24} />
-        </button>
-      </footer>
-    </blockquote>
+          <p className="text-lg sm:text-xl italic">"{quotes[index].text}"</p>
+          <footer className="mt-4 flex items-center justify-between">
+            <div className="flex items-center">
+              <img
+                className="w-10 h-10 rounded-full"
+                src={`https://www.gravatar.com/avatar/${btoa(quotes[index].author)}?d=identicon`}
+                alt={quotes[index].author}
+              />
+              <div className="ml-4">
+                <div className="text-base font-semibold text-gray-200">{quotes[index].author}</div>
+                <div className="text-xs text-gray-500">Source</div>
+              </div>
+            </div>
+            <button
+              className={`p-2 rounded-full transition-colors ${
+                saved ? "text-red-500" : "text-gray-500 hover:text-red-400"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+            >
+              <Heart fill={saved ? "red" : "none"} size={24} />
+            </button>
+          </footer>
+        </motion.blockquote>
+      </AnimatePresence>
+    </div>
   );
 }

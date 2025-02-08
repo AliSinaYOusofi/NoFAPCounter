@@ -5,6 +5,7 @@ const secretKey = process.env.SECRET_KEY;
 import { headers } from "next/headers";
 
 export async function GET(req, res) {
+  
   try {
     const headersList = await headers();
     const authorization_get_token = headersList
@@ -39,7 +40,7 @@ export async function GET(req, res) {
     const db = await openDB();
 
     const user = await db.get(
-      "SELECT username, startDate, currentStreak, motivationalMessage, started_at FROM user WHERE username = ?",
+      "SELECT username, startDate, currentStreak, motivationalMessage, started_at FROM users WHERE username = ?",
       [decoded.username],
       (err, row) => {
         if (err) {

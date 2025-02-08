@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Clipboard, ClipboardCheck, Edit, Trash2, Maximize, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
 
 export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
     
@@ -54,7 +55,7 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                                 />
                             </div>
                             <div className="flex-1 flex items-center justify-center text-xl text-gray-300 mb-4">
-                                <p className="mb-2 text-center">{description}</p>
+                                <p className="mb-2 text-center line-clamp-4  overflow-ellipsis">{description}</p>
                             </div>
                             <div className="w-full flex justify-start space-x-2 mt-4">
                                 <button
@@ -101,31 +102,40 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                 
                 <p className="text-gray-400">{description}</p>
                 
-                <p className="text-gray-500 text-sm">{new Date(createdAt).toLocaleDateString()}</p>
                 
-                <div className="flex justify-end space-x-2 mt-4">
-                    <button
-                        className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
-                        onClick={handleCopy}
-                    >
-                        {copied ? <ClipboardCheck className="w-4 h-4 mr-1" /> : <Clipboard className="w-4 h-4 mr-1" />}
-                        {copied ? "Copied" : "Copy"}
-                    </button>
+                <div className="flex justify-between items-center space-x-2 mt-4">
+                    <p className="text-gray-500 justify-start text-sm">
+                        {new Date(createdAt).toLocaleDateString()} 
+                        <span>
+                            &nbsp;({formatDistanceToNow(new Date(createdAt), { addSuffix: true })})
+                        </span>
+                    </p>
                     
-                    <button
-                        className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
-                    >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                    </button>
+                    <div className="flex">
 
-                    <button
-                        className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
-                        onClick={handleDelete}
-                    >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
-                    </button>
+                        <button
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                            onClick={handleCopy}
+                        >
+                            {copied ? <ClipboardCheck className="w-4 h-4 mr-1" /> : <Clipboard className="w-4 h-4 mr-1" />}
+                            {copied ? "Copied" : "Copy"}
+                        </button>
+                        
+                        <button
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                        >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                        </button>
+
+                        <button
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                            onClick={handleDelete}
+                        >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
+                        </button>
+                    </div>
                 </div>
                 <AnimatePresence>
                     {confirmDelete && (
