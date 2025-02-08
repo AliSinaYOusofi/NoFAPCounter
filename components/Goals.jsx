@@ -32,7 +32,6 @@ export default function Goals() {
                 }
                 const data = await response.json();
                 setGoals(data.data);
-                console.log(data.data);
             } catch (error) {
                 setError(error.message);
             } finally {
@@ -63,23 +62,14 @@ export default function Goals() {
             }
             setGoals(goals.filter((goal) => goal.id !== id));
             setSuccess("Goal deleted successfully.");
+            
+            setTimeout ( () => {
+                setSuccess(null)
+            }, 2000)
+
         } catch (error) {
             setError(error.message);
         }
-    };
-
-    const handleSort = () => {
-        const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
-        setSortOrder(newSortOrder);
-        setGoals(
-            [...goals].sort((a, b) => {
-                if (newSortOrder === "asc") {
-                    return new Date(a.created_at) - new Date(b.created_at);
-                } else {
-                    return new Date(b.created_at) - new Date(a.created_at);
-                }
-            })
-        );
     };
 
     useEffect(() => {
@@ -106,11 +96,11 @@ export default function Goals() {
                 <div className="w-full md:w-2/3 bg-black p-6 rounded-xl shadow-lg flex flex-col">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold text-white">
-                            Your Goals
+                            Your Goals : {goals.length}
                         </h2>
                         <motion.button
                             className="flex items-center text-white"
-                            onClick={handleSort}
+                            onClick={() => setSortOrder(prev => ! prev)}
                             whileTap={{ scale: 0.9 }}
                         >
                             {sortOrder === "asc" ? (
@@ -126,7 +116,10 @@ export default function Goals() {
                         </motion.button>
                     </div>
 
-                    {loading && <p className="text-gray-400">Loading...</p>}
+                    {
+                        loading && <div className="h-screen flex items-center justify-center"> <span className="loading loading-spinner"> </span> </div>
+                    }
+
                     <AnimatePresence>
                         {error && (
                             <motion.div
@@ -160,7 +153,6 @@ export default function Goals() {
                         )}
                     </AnimatePresence>
 
-                    {/* Goals List */}
                     <div
                         className="flex-1 overflow-y-auto"
                         style={{ maxHeight: "75vh" }}

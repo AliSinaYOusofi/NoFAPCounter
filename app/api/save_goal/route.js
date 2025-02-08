@@ -29,7 +29,6 @@ export async function POST(req) {
     }
 
     let decoded;
-    console.log(auth_token, ' the auth token', secretKey)
     try {
         decoded = jwt.verify(auth_token, secretKey);
         console.log(decoded)
@@ -87,7 +86,7 @@ export async function POST(req) {
 
         const query = `INSERT INTO goals (id, user_id, goal, description, created_at) VALUES (?, ?, ?, ?, ?)`;
 
-        const created_at = new Date().toISOString().split("T")[0]
+        const created_at = new Date().toISOString()
         const id = nanoid()
 
         db = await openDB()

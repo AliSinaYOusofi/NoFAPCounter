@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, BarChart, Award, Target, Users, BookOpen, Lightbulb, Heart, Settings, LogOut } from "lucide-react"
+import { Home, BarChart, Award, Target, Users, BookOpen, Lightbulb, Heart, Settings, LogOut, Zap } from "lucide-react"
 import handleLogout from "@/utils/handle_logout"
 
 const sidebarVariants = {
@@ -43,13 +43,14 @@ const itemVariants = {
 export function Sidebar({ isOpen, setIsOpen, onItemClick, activeComponent }) {
   const items = [
     { name: "Dashboard", icon: <Home className="mr-2" />, component: 'dashboard' },
+    { name: "Streak", icon: <Zap className="mr-2" />, component: 'streak' },
     { name: "Progress", icon: <BarChart className="mr-2" />, component: 'progress' },
-    { name: "Achievements", icon: <Award className="mr-2" />, component: 'achievements' },
+    // { name: "Achievements", icon: <Award className="mr-2" />, component: 'achievements' },
     { name: "Goals", icon: <Target className="mr-2" />, component: 'goals' },
     { name: "Community", icon: <Users className="mr-2" />, component: 'community' },
     { name: "Resources", icon: <BookOpen className="mr-2" />, component: 'resources' },
     { name: "Tips", icon: <Lightbulb className="mr-2" />, component: 'tips' },
-    { name: "Motivation", icon: <Heart className="mr-2" />, component: 'motivation' },
+    // { name: "Motivation", icon: <Heart className="mr-2" />, component: 'motivation' },
     { name: "Settings", icon: <Settings className="mr-2" />, component: 'settings' },
   ]
 
