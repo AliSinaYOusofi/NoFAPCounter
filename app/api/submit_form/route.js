@@ -11,6 +11,18 @@ import { nanoid } from "nanoid";
 
 const secret_key = process.env.SECRET_KEY;
 
+function signToken(payload, secret) {
+  return new Promise((resolve, reject) => {
+    jwt.sign(payload, secret, (error, token) => {
+      if (error) {
+        return reject(error);
+      }
+      resolve(token);
+    });
+  });
+}
+
+
 export async function POST(req, res) {
   let db;
 
@@ -86,7 +98,7 @@ export async function POST(req, res) {
 
       return NextResponse.json(
         { success: false, message: "ID already exists" },
-        { status: 409 },
+        { status: 401 },
       );
     }
 
@@ -122,26 +134,22 @@ export async function POST(req, res) {
       },
     );
 
-    const token = jwt.sign(
-      { username: sanitizedUsername, id: sanitizedID }, secret_key,
-      function(error, decod) {
-        if (error) console.error("Error creating token for user", error)
-        else console.log("token: ", decod)
-      }
+    const token = await signToken(
+      { username: sanitizedUsername, id: sanitizedID },
+      secret_key
     );
-
-    db.close()
 
     return NextResponse.json(
       {
         success: true,
-        message: "Data saved successfully",
-        token,
+        message: "Failed to save data",
+        token
       },
       {
         status: 200,
       },
     );
+
   } catch (error) {
     console.error("Error saving to database:", error);
 

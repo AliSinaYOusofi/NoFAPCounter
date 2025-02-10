@@ -8,6 +8,7 @@ import { useState } from "react";
 import { Goal, Menu } from "lucide-react";
 import Tips from "@/components/Tips";
 import Goals from "@/components/Goals";
+import ContributionGraph from "@/components/global/Contribution";
 
 export default function Page() {
   const [isOpen, setIsOpen] = useState(true);
@@ -41,7 +42,8 @@ export default function Page() {
           {activeComponent === 'streak' && <ShowStreakDaysOnly streakDays={4} />}
           {activeComponent === 'dashboard' && <UserDashBoard />}
           {activeComponent === 'tips' && <Tips />}
-          {activeComponent === 'goals' && <Goals />}
+          {activeComponent === 'goals' && <Goals /> }
+          {activeComponent === 'graph' && <ContributionGraph />}
         </div>
       </div>
     </div>

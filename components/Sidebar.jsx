@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Home, BarChart, Award, Target, Users, BookOpen, Lightbulb, Heart, Settings, LogOut, Zap } from "lucide-react"
+import { Home, BarChart, Award, Target, Users, BookOpen, Lightbulb, Heart, Settings, LogOut, Zap, GitGraph } from "lucide-react"
 import handleLogout from "@/utils/handle_logout"
 
 const sidebarVariants = {
@@ -52,6 +52,8 @@ export function Sidebar({ isOpen, setIsOpen, onItemClick, activeComponent }) {
     { name: "Tips", icon: <Lightbulb className="mr-2" />, component: 'tips' },
     // { name: "Motivation", icon: <Heart className="mr-2" />, component: 'motivation' },
     { name: "Settings", icon: <Settings className="mr-2" />, component: 'settings' },
+    { name: "graph", icon: <GitGraph className="mr-2" />, component: 'graph' },
+
   ]
 
   return (
@@ -70,7 +72,7 @@ export function Sidebar({ isOpen, setIsOpen, onItemClick, activeComponent }) {
               className={`p-2 rounded-lg cursor-pointer flex items-center transition-colors ${activeComponent === item.component ? "bg-blue-600" : ""}`} // Apply active style
               variants={itemVariants}
               whileHover="hover"
-              onClick={() => onItemClick(item.component)} // Trigger onItemClick with the component name
+              onClick={() => onItemClick(item.component)}
             >
               {React.cloneElement(item.icon, { className: "w-5 h-5 mr-3" })}
               {item.name}

@@ -6,6 +6,7 @@ export async function createUsersTable() {
   try {
     await db.run(
       `
+        
         CREATE TABLE IF NOT EXISTS users (
           id TEXT PRIMARY KEY CHECK (id GLOB '[a-zA-Z0-9]*' AND length(id) <= 12), 
           username TEXT NOT NULL,
@@ -13,7 +14,7 @@ export async function createUsersTable() {
           currentStreak INTEGER NOT NULL,
           motivationalMessage TEXT,
           started_at DATE NOT NULL,
-          updated_at DATE NOT NULL
+          updated_at DATE DEFAULT CURRENT_DATE
         );
 
         `,
