@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { Clipboard, ClipboardCheck, Edit, Trash2, Maximize, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
+import { UpdateGoalsCard } from "./UpdateGoalsCard";
 
-export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
+export function GoalsCard({ id, goal, description, createdAt, onDelete, setRefreshGoalsList }) {
     
     const [copied, setCopied] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
+    const [showUpdateCard, setShowUpdateCard] = useState(false);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(description);
@@ -59,23 +61,24 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                             </div>
                             <div className="w-full flex justify-start space-x-2 mt-4">
                                 <button
-                                    className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                                    className="flex items-center px-2 py-1 text-white rounded-full text-sm"
                                     onClick={handleCopy}
                                 >
-                                    {copied ? <ClipboardCheck className="w-4 h-4 mr-1" /> : <Clipboard className="w-4 h-4 mr-1" />}
+                                    {copied ? <ClipboardCheck className="w-4 h-4 mr-1 text-green-500" /> : <Clipboard className="w-4 h-4 mr-1 text-yellow-500" />}
                                     {copied ? "Copied" : "Copy"}
                                 </button>
                                 <button
-                                    className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                                    onClick={() => setShowUpdateCard(true)}
+                                    className="flex items-center px-2 py-1 rounded-full text-sm"
                                 >
-                                    <Edit className="w-4 h-4 mr-1" />
+                                    <Edit className="w-4 h-4 mr-1 text-blue-500" />
                                     Edit
                                 </button>
                                 <button
-                                    className="flex items-center px-2 py-1  text-white rounded-full text-sm font-semibold transition-all duration-200"
+                                    className="flex items-center px-2 py-1  text-white rounded-full text-sm transition-all duration-200"
                                     onClick={handleDelete}
                                 >
-                                    <Trash2 className="w-4 h-4 mr-1" />
+                                    <Trash2 className="w-4 h-4 mr-1 text-red-500" />
                                     Delete
                                 </button>
                             </div>
@@ -114,25 +117,26 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                     <div className="flex">
 
                         <button
-                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm"
                             onClick={handleCopy}
                         >
-                            {copied ? <ClipboardCheck className="w-4 h-4 mr-1" /> : <Clipboard className="w-4 h-4 mr-1" />}
+                            {copied ? <ClipboardCheck className="w-4 h-4 mr-1 text-green-500" /> : <Clipboard className="w-4 h-4 mr-1 text-yellow-500" />}
                             {copied ? "Copied" : "Copy"}
                         </button>
                         
                         <button
-                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                            onClick={() => setShowUpdateCard(true)}
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm"
                         >
-                            <Edit className="w-4 h-4 mr-1" />
+                            <Edit className="w-4 h-4 mr-1 text-blue-500" />
                             Edit
                         </button>
 
                         <button
-                            className="flex items-center px-2 py-1 text-white rounded-full text-sm font-semibold"
+                            className="flex items-center px-2 py-1 text-white rounded-full text-sm"
                             onClick={handleDelete}
                         >
-                            <Trash2 className="w-4 h-4 mr-1" />
+                            <Trash2 className="w-4 h-4 mr-1 text-red-500" />
                             Delete
                         </button>
                     </div>
@@ -169,6 +173,25 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete }) {
                                     </button>
                                 </div>
                             </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+                <AnimatePresence>
+                    {showUpdateCard && (
+                        <motion.div
+                            className="fixed inset-0 card_bg_top bg-opacity-90 flex items-center justify-center z-50"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                        >
+                            <UpdateGoalsCard 
+                                setRefreshGoalsList={setRefreshGoalsList}
+                                onClose={() => setShowUpdateCard(false)}
+                                goal={goal}
+                                description={description}
+                                id={id}
+                                
+                            />
                         </motion.div>
                     )}
                 </AnimatePresence>

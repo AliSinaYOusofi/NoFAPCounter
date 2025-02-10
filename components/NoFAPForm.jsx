@@ -27,8 +27,8 @@ const saveNofapDataAction = async (formData) => {
     });
 
     if (response.ok) {
-      const json = await response.json();
-
+      const json = await response.json()
+      console.log(json, 'what the fuck')
       const token = json.token;
 
       localStorage.setItem("token", token);
@@ -39,7 +39,14 @@ const saveNofapDataAction = async (formData) => {
     if (response.status === 409) {
       return {
         success: false,
-        error: "Username already exists !",
+        error: "Username or ID already exists !",
+      };
+    }
+
+    else if (response.status === 401) {
+      return {
+        success: false,
+        error: "ID already exists !",
       };
     }
     return {
@@ -66,7 +73,6 @@ const validateForm = (formData) => {
   }
 
   if (!currentSreakValidator(formData.get("currentStreak"))) {
-    console.log("what");
     errors.currentStreak = "Current streak should be a number";
   }
   if (! idValidator(formData.get("id"))) {

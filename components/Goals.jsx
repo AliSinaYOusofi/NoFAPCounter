@@ -20,7 +20,6 @@ export default function Goals() {
     useEffect(() => {
         const fetchGoals = async () => {
             try {
-                console.log(token, ' the token')
                 const response = await fetch("/api/save_goal", {
                     method: "GET",
                     headers: {
@@ -31,6 +30,7 @@ export default function Goals() {
                     throw new Error("Failed to fetch goals");
                 }
                 const data = await response.json();
+                console.log(data)
                 setGoals(data.data);
             } catch (error) {
                 setError(error.message);
@@ -174,6 +174,7 @@ export default function Goals() {
                                                 description={goal.description}
                                                 createdAt={goal.created_at}
                                                 onDelete={handleDelete}
+                                                setRefreshGoalsList={setRefreshGoalsList}
                                             />
                                         </motion.div>
                                     ))

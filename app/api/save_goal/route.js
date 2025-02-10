@@ -146,11 +146,56 @@ export async function POST(req) {
 // get data
 
 export async function GET(req) {
+
+    let db
+    let headersList = await headers()
+    
+    const auth_token = headersList.get("Authorization")?.split(" ")[1];
+
+    if (! headersList.has("Authorization")) {
+        return NextResponse.json(
+            { success: false, message: "Missing Authorization header" },
+            { status: 401 },
+        );
+      } 
+    
+    else if (!auth_token) {
+        return NextResponse.json(
+          { success: false, message: "No Authorization token provided" },
+          { status: 400 },
+        );
+    }
+
+    let decoded;
     try {
-        const query = `SELECT * FROM goals ORDER BY created_at DESC`;
+        decoded = jwt.verify(auth_token, secretKey);
+        console.log(decoded)
+    } catch (error) {
+        return NextResponse.json(
+            { success: false, message: "Invalid or expired token" },
+            { status: 401 },
+        );
+    }
+
+    try {
+        const query = `SELECT * FROM goals WHERE user_id = ? ORDER BY created_at DESC`;
 
         const db = await openDB();
-        const goals = await db.all(query);
+        const goals = await db.all(
+            query,
+            [decoded.id],
+            function(error) {
+
+                if (error) {
+                    return NextResponse.json(
+                        { success: false, message: "Failed while fetching goals" },
+                        { status: 401 },
+                    );
+                }
+            }
+        )
+        console.log(goals)
+
         db.close();
 
         return NextResponse.json(
