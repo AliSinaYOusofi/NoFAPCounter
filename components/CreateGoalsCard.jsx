@@ -12,7 +12,6 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
-    const router = useRouter()
     const token = useToken()
 
     const handleSubmit = async (event) => {
@@ -22,7 +21,7 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
 
         if ( ! String(goal).length) return setErrors("Goal can't be empty")
         else if (! String(goal).length) return setErrors("Description can't be empty")
-        else if ( ! token) return router.push('/login')
+
         try {
             const response = await fetch("/api/save_goal", {
                 method: "POST",
