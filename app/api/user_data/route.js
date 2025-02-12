@@ -7,24 +7,8 @@ import { headers } from "next/headers";
 export async function GET(req, res) {
   
   try {
-    const headersList = await headers();
-    const authorization_get_token = headersList
-      .get("Authorization")
-      ?.split(" ")[1];
-
-    const token = authorization_get_token;
-
-    if (!headersList.has("Authorization")) {
-      return NextResponse.json(
-        { success: false, message: "Missing Authorization header" },
-        { status: 401 },
-      );
-    } else if (!token) {
-      return NextResponse.json(
-        { success: false, message: "No Authorization token provided" },
-        { status: 400 },
-      );
-    }
+    
+    let token = req.cookies.get("token")?.value;
 
     let decoded;
 

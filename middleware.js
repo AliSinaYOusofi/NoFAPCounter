@@ -1,24 +1,30 @@
-import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+import { NextResponse } from "next/server";
 
-const secretKey = process.env.SECRET_KEY;
+export function middleware(request) {
+    
+    const authToken = request.cookies.get("token")?.value;
 
-export async function middleware(req) {
-    
-    const headersList = req.headers;
-    const auth_token = headersList.get("Authorization")?.split(" ")[1];
-    
-    if (!headersList.has("Authorization")) {
-        return NextResponse.json(
-            { success: false, message: "Missing Authorization header" },
-            { status: 401 }
-        );
+    console.log(authToken, ' auth token')
+    const protectedPaths = ["/dashboard", "/api/user_data", "/save_goal"];
+
+    const isProtectedPath = protectedPaths.some((path) =>
+        request.nextUrl.pathname.startsWith(path)
+    );
+
+    if (isProtectedPath && !authToken) {
+        return NextResponse.redirect(new URL("/forward", request.url));
     }
 
-    if (!auth_token) {
-        return NextResponse.json(
-            { success: false, message: "No Authorization token provided" },
-            { status: 400 }
+    if (request.nextUrl.pathname.startsWith("/api") && !authToken) {
+        return new NextResponse(
+            JSON.stringify({
+                success: false,
+                message: "authentication failed",
+            }),
+            {
+                status: 401,
+                headers: { "content-type": "application/json" },
+            }
         );
     }
 
@@ -26,5 +32,16 @@ export async function middleware(req) {
 }
 
 export const config = {
-    matcher: [ '/api/user_data', '/save_goal'],
-}
+    matcher: [
+        /*
+         * Match all request paths except for the ones starting with:
+         * - api (API routes)
+         * - _next/static (static files)
+         * - _next/image (image optimization files)
+         * - favicon.ico (favicon file)
+         */
+        "/((?!api|_next/static|_next/image|favicon.ico).*)",
+        "/api/user_data",
+        "/save_goal",
+    ],
+};

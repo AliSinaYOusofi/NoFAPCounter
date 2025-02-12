@@ -4,6 +4,7 @@ import { usernameValidator } from "@/utils/validators/usernameValidator";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import { idValidator } from "@/utils/validators/id_validator";
+import { serialize } from "cookie";
 
 const secret_key = process.env.SECRET_KEY;
 
@@ -58,11 +59,20 @@ export async function POST(req) {
             );
         }
 
-        // Generate JWT token
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 60 * 60 * 24 * 365 * 10,
+            path: "/",
+        }
+
         const token = jwt.sign(
             { username: sanitizedUsername, id: sanitizedID },
             secret_key
         );
+
+        const cookieString = serialize("token", token, cookieOptions)
 
         return NextResponse.json(
             {
@@ -70,7 +80,13 @@ export async function POST(req) {
                 message: "Login successful",
                 token,
             },
-            { status: 200 }
+            { 
+                status: 200,
+                headers: {
+                    "Set-Cookie": cookieString,
+                    "Content-Type": "application/json",
+                }
+            }
         );
     } catch (error) {
         console.error("Error during login:", error);

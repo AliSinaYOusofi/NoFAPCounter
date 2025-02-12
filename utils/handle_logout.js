@@ -1,10 +1,13 @@
-export default function handleLogout() {
+export default async function handleLogout() {
+
     try {
-        localStorage.removeItem('token')
-        window.location.href = '/forward'
-        return true
+        await fetch("/api/logout", { 
+            method: "POST",
+            credentials: "include"
+        });
+
+        window.location.href = "/forward";
     } catch (error) {
-        alert('Failed to logout')
-        return false
+        alert("Failed to logout");
     }
 }

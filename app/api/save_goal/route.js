@@ -10,25 +10,10 @@ import jwt from "jsonwebtoken";
 export async function POST(req) {
 
     let db
-    let headersList = await headers()
-    
-    const auth_token = headersList.get("Authorization")?.split(" ")[1];
-
-    if (! headersList.has("Authorization")) {
-        return NextResponse.json(
-            { success: false, message: "Missing Authorization header" },
-            { status: 401 },
-        );
-      } 
-    
-    else if (!auth_token) {
-        return NextResponse.json(
-          { success: false, message: "No Authorization token provided" },
-          { status: 400 },
-        );
-    }
+    let auth_token = req.cookies.get("token")?.value;
 
     let decoded;
+    
     try {
         decoded = jwt.verify(auth_token, secretKey);
         console.log(decoded)
@@ -148,23 +133,8 @@ export async function POST(req) {
 export async function GET(req) {
 
     let db
-    let headersList = await headers()
     
-    const auth_token = headersList.get("Authorization")?.split(" ")[1];
-
-    if (! headersList.has("Authorization")) {
-        return NextResponse.json(
-            { success: false, message: "Missing Authorization header" },
-            { status: 401 },
-        );
-      } 
-    
-    else if (!auth_token) {
-        return NextResponse.json(
-          { success: false, message: "No Authorization token provided" },
-          { status: 400 },
-        );
-    }
+    let auth_token = req.cookies.get("token")?.value;
 
     let decoded;
     try {
@@ -194,7 +164,6 @@ export async function GET(req) {
                 }
             }
         )
-        console.log(goals)
 
         db.close();
 

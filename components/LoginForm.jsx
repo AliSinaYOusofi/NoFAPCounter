@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, BadgeAlert, CircleX, Router } from "lucide-react";
+import { Check, BadgeAlert, CircleX, Router, X } from "lucide-react";
 import { usernameValidator } from "@/utils/validators/usernameValidator";
 import { idValidator } from "@/utils/validators/id_validator";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+
 const loginAction = async (formData) => {
     try {
         const response = await fetch("/api/forward", {
@@ -18,7 +19,6 @@ const loginAction = async (formData) => {
 
         if (response.ok) {
             const json = await response.json();
-            localStorage.setItem("token", json.token);
             return { success: json.success };
         }
 
@@ -105,7 +105,7 @@ export function LoginForm({ className }) {
                                     <span className="text-gray-100 cursor-pointer">
                                         Login successful!
                                     </span>
-                                    <CircleX
+                                    <X
                                         onClick={() =>
                                             setState({
                                                 success: false,
@@ -129,7 +129,7 @@ export function LoginForm({ className }) {
                                     <span className="text-gray-100">
                                         {state.errors.form || "Login failed"}
                                     </span>
-                                    <CircleX
+                                    <X
                                         onClick={() =>
                                             setState({
                                                 success: false,
@@ -142,8 +142,29 @@ export function LoginForm({ className }) {
                                 </motion.div>
                             )}
                         </AnimatePresence>
-
+                        
                         <div className="form-control">
+                            <label className="label" htmlFor="id">
+                                <span className="label-text text-gray-700">
+                                    ID
+                                </span>
+                            </label>
+                            <input
+                                type="text"
+                                id="id"
+                                name="id"
+                                placeholder="Enter your ID"
+                                className="input input-bordered bg-gray-100 text-gray-700"
+                                required
+                                disabled={state.pending}
+                            />
+                            {state.errors?.id && (
+                                <p className="text-red-500 text-sm mt-2">
+                                    {state.errors.id}
+                                </p>
+                            )}
+                        </div>
+                        <div className="form-control mt-4">
                             <label className="label" htmlFor="username">
                                 <span className="label-text text-gray-700">
                                     Username
@@ -165,27 +186,7 @@ export function LoginForm({ className }) {
                             )}
                         </div>
 
-                        <div className="form-control mt-4">
-                            <label className="label" htmlFor="id">
-                                <span className="label-text text-gray-700">
-                                    ID
-                                </span>
-                            </label>
-                            <input
-                                type="text"
-                                id="id"
-                                name="id"
-                                placeholder="Enter your ID"
-                                className="input input-bordered bg-gray-100 text-gray-700"
-                                required
-                                disabled={state.pending}
-                            />
-                            {state.errors?.id && (
-                                <p className="text-red-500 text-sm mt-2">
-                                    {state.errors.id}
-                                </p>
-                            )}
-                        </div>
+                        
 
                         <div className="form-control mt-6">
                             <button
@@ -200,6 +201,7 @@ export function LoginForm({ className }) {
                             </button>
                         </div>
                     </form>
+                    <a href="/" className="text-black mt-4 hover:text-blue-500 hover:underline">Don't have an account</a>
                 </div>
             </motion.div>
         </div>

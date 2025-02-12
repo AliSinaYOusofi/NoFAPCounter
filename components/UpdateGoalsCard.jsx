@@ -4,7 +4,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useToken } from "@/hooks/useToken";
 
 export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDescription, setRefreshGoalsList, onClose }) {
@@ -13,7 +12,6 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
-    const router = useRouter();
     const token = useToken();
 
     const handleSubmit = async (event) => {
@@ -23,7 +21,6 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
 
         if (!String(goal).length) return setErrors("Goal can't be empty");
         else if (!String(description).length) return setErrors("Description can't be empty");
-        else if (!token) return router.push('/login');
 
         try {
             const response = await fetch(`/api/update_goal`, {

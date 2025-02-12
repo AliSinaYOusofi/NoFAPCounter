@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Award, Calendar, Clock, MessageSquare, User } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { QuoteShower } from "./QuoteShower"
-import { useToken } from "@/hooks/useToken"
+import RetryButton from "./global/RetryButton"
 
 const cardVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -37,22 +37,15 @@ export function UserDashBoard() {
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [refresh, setRefresh] = useState(false)
   const router = useRouter()
-  const token = useToken()
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        if (!token) {
-          router.push("/login")
-          return
-        }
-
         const response = await fetch("/api/user_data", {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          
         })
 
         if (!response.ok) {
@@ -61,6 +54,7 @@ export function UserDashBoard() {
 
         const data = await response.json()
         setUserData(data)
+        console.log('daata', data)
       } catch (error) {
         setError(error.message)
       } finally {
@@ -69,20 +63,19 @@ export function UserDashBoard() {
     }
 
     fetchUserData()
-  }, [router, token])
+  }, [router, refresh])
 
   if (loading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-black">
-        <span className="loading loading-spinner loading-lg text-blue-500"></span>
-      </div>
+      <div className="h-screen bg-black w-full flex items-center justify-center"> <span className="loading loading-spinner"> </span> </div>
     )
   }
 
   if (error) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center bg-black">
+      <div className="w-screen h-screen flex flex-col items-center justify-center bg-black">
         <p className="text-red-500">Error: {error}</p>
+        <RetryButton setRefresh={setRefresh} />
       </div>
     )
   }

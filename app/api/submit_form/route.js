@@ -7,7 +7,7 @@ import validator from "validator";
 import { createUsersTable } from "@/database/create_users_table";
 import jwt from "jsonwebtoken";
 import { idValidator } from "@/utils/validators/id_validator";
-import { nanoid } from "nanoid";
+import { serialize } from "cookie";
 
 const secret_key = process.env.SECRET_KEY;
 
@@ -134,19 +134,33 @@ export async function POST(req, res) {
       },
     );
 
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 365 * 10,
+      path: "/",
+    }
+
     const token = await signToken(
       { username: sanitizedUsername, id: sanitizedID },
       secret_key
     );
-
+  
+    const cookieString = serialize("token", token, cookieOptions)
+  
     return NextResponse.json(
       {
         success: true,
-        message: "Failed to save data",
+        message: "Account created",
         token
       },
       {
         status: 200,
+        headers: {
+          "Set-Cookie": cookieString,
+          "Content-Type": "application/json",
+        }
       },
     );
 

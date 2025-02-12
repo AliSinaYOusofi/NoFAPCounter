@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useToken } from "@/hooks/useToken";
-import { useRouter } from "next/navigation";
 import Toast from "./global/Toast";
+import RetryButton from "./global/RetryButton";
 
 // TODO: how to update the streak and track the date
-export default function ShowStreakDaysOnly({ streakDays }) {
+export default function ShowStreakDaysOnly({ }) {
     const [isVisible, setIsVisible] = useState(false);
     const [dayProgress, setDayProgress] = useState(0);
     const [streak, setStreak] = useState(0)
     const [error, setError] = useState(null)
     const [loading, setLoading] = useState(null)
+    const [refresh, setRefresh] = useState(false)
     
     const [notification, setNotification] = useState(
         {
@@ -22,8 +22,7 @@ export default function ShowStreakDaysOnly({ streakDays }) {
             position: 'top-center'
         }
     );
-    const token = useToken()
-    const router = useRouter()
+    
     const [remainingTime, setRemainingTime] = useState({
         hours: 0,
         minutes: 0,
@@ -39,17 +38,12 @@ export default function ShowStreakDaysOnly({ streakDays }) {
 
     useEffect(() => {
         const fetchCurrentStreakDays = async () => {
+            setLoading(true)
             try {
-                if (!token) {
-                    router.push("/login");
-                    return;
-                }
 
                 const response = await fetch("/api/user_data", {
                     method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                    
                 });
 
                 if (!response.ok) {
@@ -57,7 +51,8 @@ export default function ShowStreakDaysOnly({ streakDays }) {
                 }
 
                 const data = await response.json();
-                setStreak(data.data?.currentStreak || 0);
+                console.log(data, ' str')
+                setStreak(data?.currentStreak || 0);
             } catch (error) {
                 setError("error fetching resourse");
             } finally {
@@ -65,7 +60,8 @@ export default function ShowStreakDaysOnly({ streakDays }) {
             }
         };
         fetchCurrentStreakDays()
-    }, []);
+    }, [refresh]);
+
     const updateDayProgress = () => {
         const now = new Date();
         const totalSeconds =
@@ -73,7 +69,6 @@ export default function ShowStreakDaysOnly({ streakDays }) {
         const progress = totalSeconds / 864;
         setDayProgress(progress);
 
-        // Calculate remaining time
         const remainingSeconds = 86400 - totalSeconds;
         const hours = Math.floor(remainingSeconds / 3600);
         const minutes = Math.floor((remainingSeconds % 3600) / 60);
@@ -81,7 +76,7 @@ export default function ShowStreakDaysOnly({ streakDays }) {
         setRemainingTime({ hours, minutes, seconds });
     };
 
-    const digits = String(streakDays).padStart(3, "0").split("");
+    const digits = String(streak).padStart(3, "0").split("");
 
     const handleUpdateStreak = async () => {
 
@@ -89,9 +84,6 @@ export default function ShowStreakDaysOnly({ streakDays }) {
         try {
             const response = await fetch("/api/update_streak", {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
             });
 
             const data = await response.json();
@@ -106,6 +98,21 @@ export default function ShowStreakDaysOnly({ streakDays }) {
             setError("Failed to update streak");
         } 
     };
+
+    if (loading) {
+        return (
+          <div className="h-screen bg-black w-full flex items-center justify-center"> <span className="loading loading-spinner"> </span> </div>
+        )
+      }
+    
+      if (error) {
+        return (
+          <div className="w-screen h-screen flex-col flex items-center justify-center bg-black">
+            <p className="text-red-500">Error: {error}</p>
+            <RetryButton setRefresh={setRefresh} />
+          </div>
+        )
+    }
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center card_bg text-white relative overflow-hidden px-4">

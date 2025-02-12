@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useToken } from "@/hooks/useToken";
 import { nanoid } from "nanoid";
+import RetryButton from "./global/RetryButton";
 
 export default function Goals() {
     const [goals, setGoals] = useState([]);
@@ -14,7 +15,7 @@ export default function Goals() {
     const [success, setSuccess] = useState(null);
     const [refreshGoalsList, setRefreshGoalsList] = useState(false);
     const [sortOrder, setSortOrder] = useState("desc");
-    const router = useRouter();
+    const [refresh, setRefresh] = useState(false)
     const token = useToken()
 
     useEffect(() => {
@@ -40,15 +41,13 @@ export default function Goals() {
         };
 
         fetchGoals();
-    }, [refreshGoalsList]);
+    }, [refreshGoalsList, refresh]);
 
     const handleDelete = async (id) => {
         
         if (!id) return setError("No ID provided");
 
         try {
-            
-            if (! token) return router.push("/login");
 
             const response = await fetch(`/api/save_goal?id=${id}`, {
                 method: "DELETE",
@@ -123,7 +122,7 @@ export default function Goals() {
                     <AnimatePresence>
                         {error && (
                             <motion.div
-                                className="bg-red-300 text-white p-4 rounded-lg w-full flex justify-between items-center mb-4"
+                                className="bg-red-500 text-white p-4 rounded-lg w-full flex justify-between items-center mb-4"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -134,11 +133,13 @@ export default function Goals() {
                                     className="cursor-pointer"
                                     onClick={() => setError(null)}
                                 />
+
+                                
                             </motion.div>
                         )}
                         {success && (
                             <motion.div
-                                className="bg-green-300 text-white p-4 rounded-lg w-full flex justify-between items-center mb-4"
+                                className="bg-green-500 text-white p-4 rounded-lg w-full flex justify-between items-center mb-4"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -184,6 +185,7 @@ export default function Goals() {
                                     </p>
                                 )}
                             </div>
+                            {error && <RetryButton setRefresh={setRefresh} />}
                         </AnimatePresence>
                     </div>
                 </div>

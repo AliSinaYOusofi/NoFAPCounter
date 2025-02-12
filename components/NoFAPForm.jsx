@@ -351,6 +351,7 @@ export function NofapForm({ className }) {
             </button>
           </div>
         </form>
+        <a href="/forward" className="text-black mt-4 hover:text-blue-500 hover:underline">Already Have an account</a>
       </div>
     </motion.div>
   );

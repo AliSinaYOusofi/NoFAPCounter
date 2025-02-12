@@ -1,6 +1,3 @@
-// pages/api/streak.js
-
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { openDB } from "@/database/db_connection";
@@ -8,22 +5,9 @@ import { openDB } from "@/database/db_connection";
 const secretKey = process.env.SECRET_KEY;
 
 export async function POST(req) {
+    
     let db;
-    let headersList = await headers();
-    const auth_token = headersList.get("Authorization")?.split(" ")[1];
-
-    if (!headersList.has("Authorization")) {
-        return NextResponse.json(
-            { success: false, message: "Missing Authorization header" },
-            { status: 401 }
-        );
-    } else if (!auth_token) {
-        return NextResponse.json(
-            { success: false, message: "No Authorization token provided" },
-            { status: 400 }
-        );
-    }
-
+    let auth_token = req.cookies.get("token")?.value;
     let decoded;
     
     try {
@@ -45,9 +29,9 @@ export async function POST(req) {
                 { status: 404 }
             );
         }
-
+        
         return NextResponse.json(
-            { success: true, currentStreak: user.currentStreak },
+            { success: true,  currentStreak: user.currentStreak, start_date: user.started_at},
             { status: 200 }
         );
     } catch (error) {
