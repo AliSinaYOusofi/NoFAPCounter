@@ -4,25 +4,32 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
+import RelapseMessage from "./RelapseMessage";
 
-// TODO: how to update the streak and track the date
-export default function ShowStreakDaysOnly({ }) {
+export default function ShowStreakDaysOnly() {
     const [isVisible, setIsVisible] = useState(false);
     const [dayProgress, setDayProgress] = useState(0);
-    const [streak, setStreak] = useState(0)
-    const [error, setError] = useState(null)
-    const [loading, setLoading] = useState(null)
-    const [refresh, setRefresh] = useState(false)
-    
-    const [notification, setNotification] = useState(
-        {
-            show: false, 
-            message: '', 
-            type: 'info', 
-            position: 'top-center'
-        }
-    );
-    
+    const [streak, setStreak] = useState(0);
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [refresh, setRefresh] = useState(false);
+    const [animationKey, setAnimationKey] = useState(0);
+    const [userRelapsed, setUserRelpased] = useState(false)
+
+    const [notification, setNotification] = useState({
+        show: false,
+        message: "",
+        type: "info",
+        position: "bottom-right",
+    });
+
+    const [relpaseNotification, setRelapseNotification] = useState({
+        show: false,
+        message: "Your streak was reset due to inactivity. Starting from day one again !!!",
+        type: "info",
+        position: "bottom-right",
+    })
+
     const [remainingTime, setRemainingTime] = useState({
         hours: 0,
         minutes: 0,
@@ -30,20 +37,17 @@ export default function ShowStreakDaysOnly({ }) {
     });
 
     useEffect(() => {
-        setIsVisible(true);
         updateDayProgress();
-        const interval = setInterval(updateDayProgress, 1000); // Update every second
+        const interval = setInterval(updateDayProgress, 1000);
         return () => clearInterval(interval);
     }, []);
 
     useEffect(() => {
         const fetchCurrentStreakDays = async () => {
-            setLoading(true)
+            setLoading(true);
             try {
-
                 const response = await fetch("/api/user_data", {
                     method: "GET",
-                    
                 });
 
                 if (!response.ok) {
@@ -51,16 +55,23 @@ export default function ShowStreakDaysOnly({ }) {
                 }
 
                 const data = await response.json();
-                console.log(data, ' str')
                 setStreak(data?.currentStreak || 0);
             } catch (error) {
-                setError("error fetching resourse");
+                setError("Error fetching resource");
             } finally {
                 setLoading(false);
             }
         };
-        fetchCurrentStreakDays()
+        fetchCurrentStreakDays();
     }, [refresh]);
+
+    useEffect(() => {
+        setIsVisible(false);
+        setTimeout(() => {
+            setIsVisible(true);
+            setAnimationKey((prevKey) => prevKey + 1);
+        }, 100);
+    }, [streak]);
 
     const updateDayProgress = () => {
         const now = new Date();
@@ -76,49 +87,79 @@ export default function ShowStreakDaysOnly({ }) {
         setRemainingTime({ hours, minutes, seconds });
     };
 
-    const digits = String(streak).padStart(3, "0").split("");
+    const digits = String(streak).padStart(4, "0").split("");
 
     const handleUpdateStreak = async () => {
-
-        setNotification({ show: false, message: '' });
+        setNotification({
+            show: false,
+            message: "",
+            type: "info",
+            position: "top-center",
+        });
         try {
             const response = await fetch("/api/update_streak", {
                 method: "POST",
             });
 
             const data = await response.json();
-            
-            setNotification({ show: true, message: data.message });
-            
-            setTimeout( () => {
-                setNotification({ show: false, message: '' });
-            }, 3000)
-            setStreak(data.currentStreak);
+
+            if (response.ok) {
+                setNotification({
+                    show: true,
+                    message: data.message,
+                    type: "info",
+                    position: "top-center",
+                });
+                
+                setTimeout(() => {
+                    setNotification({
+                        show: false,
+                        message: "",
+                        type: "info",
+                        position: "top-center",
+                    });
+                }, 3000);
+                
+                setStreak(data.currentStreak);
+                setUserRelpased(data?.relapse)
+                
+                setRelapseNotification({
+                    show: true,
+                    message: "Your streak was reset due to inactivity. Starting from day one again !!!",
+                    type: "info",
+                    position: "bottom-right",
+                })
+            }
+
         } catch (error) {
             setError("Failed to update streak");
-        } 
+        }
     };
 
     if (loading) {
         return (
-          <div className="h-screen bg-black w-full flex items-center justify-center"> <span className="loading loading-spinner"> </span> </div>
-        )
-      }
-    
-      if (error) {
+            <div className="h-screen bg-black w-full flex items-center justify-center">
+                <span className="loading loading-spinner"></span>
+            </div>
+        );
+    }
+
+    if (error) {
         return (
-          <div className="w-screen h-screen flex-col flex items-center justify-center bg-black">
-            <p className="text-red-500">Error: {error}</p>
-            <RetryButton setRefresh={setRefresh} />
-          </div>
-        )
+            <div className="w-screen h-screen flex-col flex items-center justify-center bg-black">
+                <p className="text-red-500">Error: {error}</p>
+                <RetryButton setRefresh={setRefresh} />
+            </div>
+        );
     }
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center card_bg text-white relative overflow-hidden px-4">
             <AnimatePresence>
+            
                 {isVisible && (
                     <motion.div
+                        key={animationKey}
                         className="font-bold text-blue-400 flex items-center justify-center relative z-10"
                         initial="hidden"
                         animate="visible"
@@ -136,7 +177,7 @@ export default function ShowStreakDaysOnly({ }) {
                                     delay: index * 0.15,
                                 }}
                             >
-                                {streak}
+                                {digit}
                             </motion.span>
                         ))}
                     </motion.div>
@@ -151,7 +192,7 @@ export default function ShowStreakDaysOnly({ }) {
             >
                 Days Strong
             </motion.div>
-
+            
             <motion.div
                 className="mt-2 text-md sm:text-lg md:text-2xl text-blue-300 relative z-10"
                 initial={{ opacity: 0, y: 10 }}
@@ -171,13 +212,26 @@ export default function ShowStreakDaysOnly({ }) {
                 Update Streak
             </motion.button>
 
-            <Toast 
+            <Toast
                 show={notification.show}
                 message={notification.message}
                 type={notification.type}
                 position={notification.position}
-                onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+                onClose={() =>
+                    setNotification((prev) => ({ ...prev, show: false }))
+                }
             />
+            
+            <Toast
+                show={relpaseNotification.show}
+                message={relpaseNotification.message}
+                type={relpaseNotification.type}
+                position={relpaseNotification.position}
+                onClose={() =>
+                    setRelapseNotification((prev) => ({ ...prev, show: false }))
+                }
+            />
+            
         </div>
     );
 }

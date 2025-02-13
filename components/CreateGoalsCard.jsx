@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useToken } from "@/hooks/useToken";
 
 export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [goal, setGoal] = useState("");
@@ -12,7 +10,6 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
-    const token = useToken()
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -27,12 +24,10 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ goal, description }),
             });
 
-            console.log(response)
             if (response.ok) {
                 setSuccess(true);
                 setGoal("");

@@ -31,7 +31,7 @@ export async function POST(req) {
         }
         
         return NextResponse.json(
-            { success: true,  currentStreak: user.currentStreak, start_date: user.started_at},
+            { success: true, updated_at: user.updated_at, currentStreak: user.currentStreak, start_date: user.started_at},
             { status: 200 }
         );
     } catch (error) {

@@ -1,5 +1,3 @@
-
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { openDB } from "@/database/db_connection";
@@ -59,10 +57,12 @@ export async function POST(req) {
         let newStreak = user.currentStreak;
         let newUpdated = user.updated_at;
 
+        let is_streak_reseted = false
         if (diffDays === 1) {
             newStreak++;
             newUpdated = currentDate;
         } else if (diffDays > 1) {
+            is_streak_reseted = true
             newStreak = 1;
             newUpdated = currentDate;
         }
@@ -76,7 +76,12 @@ export async function POST(req) {
         
         db.close();
         return NextResponse.json(
-            { success: true, message: "Goal updated successfully", currentStreak: newStreak },
+            { 
+                success: true, 
+                message: "Goal updated successfully", 
+                currentStreak: newStreak,
+                relapse: is_streak_reseted,
+            },
             { status: 200 }
         );
     } catch (error) {
