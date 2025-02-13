@@ -3,8 +3,6 @@ import { CreateGoalsCard } from "./CreateGoalsCard";
 import { GoalsCard } from "./GoalsCard";
 import { ArrowUp, ArrowDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useToken } from "@/hooks/useToken";
 import { nanoid } from "nanoid";
 import RetryButton from "./global/RetryButton";
 
@@ -16,16 +14,12 @@ export default function Goals() {
     const [refreshGoalsList, setRefreshGoalsList] = useState(false);
     const [sortOrder, setSortOrder] = useState("desc");
     const [refresh, setRefresh] = useState(false)
-    const token = useToken()
 
     useEffect(() => {
         const fetchGoals = async () => {
             try {
                 const response = await fetch("/api/save_goal", {
                     method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`
-                    }
                 });
                 if (!response.ok) {
                     throw new Error("Failed to fetch goals");

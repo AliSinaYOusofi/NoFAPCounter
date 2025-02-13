@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { openDB } from "@/database/db_connection";
 import jwt from "jsonwebtoken";
 const secretKey = process.env.SECRET_KEY;
-import { headers } from "next/headers";
 
 export async function GET(req, res) {
   
@@ -24,7 +23,7 @@ export async function GET(req, res) {
     const db = await openDB();
 
     const user = await db.get(
-      "SELECT username, startDate, currentStreak, motivationalMessage, started_at FROM users WHERE username = ?",
+      "SELECT username, startDate, currentStreak, motivationalMessage, started_at, updated_at FROM users WHERE username = ?",
       [decoded.username],
       (err, row) => {
         if (err) {
@@ -43,7 +42,6 @@ export async function GET(req, res) {
     }
 
     db.close();
-
     return NextResponse.json({ success: true, ...user }, { status: 200 });
   } catch (error) {
     console.error("Error fetching user data:", error);

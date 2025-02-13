@@ -4,7 +4,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useToken } from "@/hooks/useToken";
 
 export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDescription, setRefreshGoalsList, onClose }) {
     const [goal, setGoal] = useState(initialGoal || "");
@@ -12,7 +11,6 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
     const [success, setSuccess] = useState(false);
     const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
-    const token = useToken();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -27,7 +25,6 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({ id, goal, description }),
             });
