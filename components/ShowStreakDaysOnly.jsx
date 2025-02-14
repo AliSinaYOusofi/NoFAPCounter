@@ -4,17 +4,19 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
-import RelapseMessage from "./RelapseMessage";
+import { Trophy, Award } from "lucide-react";
 
 export default function ShowStreakDaysOnly() {
     const [isVisible, setIsVisible] = useState(false);
     const [dayProgress, setDayProgress] = useState(0);
     const [streak, setStreak] = useState(0);
+    const [longestStreak, setLongestStreak] = useState(0);
+    const [totalCleanDays, setTotalCleanDays] = useState(0);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [refresh, setRefresh] = useState(false);
     const [animationKey, setAnimationKey] = useState(0);
-    const [userRelapsed, setUserRelpased] = useState(false)
+    const [userRelapsed, setUserRelapsed] = useState(false);
 
     const [notification, setNotification] = useState({
         show: false,
@@ -23,12 +25,12 @@ export default function ShowStreakDaysOnly() {
         position: "bottom-right",
     });
 
-    const [relpaseNotification, setRelapseNotification] = useState({
+    const [relapseNotification, setRelapseNotification] = useState({
         show: false,
-        message: "Your streak was reset due to inactivity. Starting from day one again !!!",
+        message: "Your streak was reset due to inactivity. Starting from day one again!",
         type: "info",
         position: "bottom-right",
-    })
+    });
 
     const [remainingTime, setRemainingTime] = useState({
         hours: 0,
@@ -56,6 +58,8 @@ export default function ShowStreakDaysOnly() {
 
                 const data = await response.json();
                 setStreak(data?.currentStreak || 0);
+                setLongestStreak(data?.longestStreak || 0);
+                setTotalCleanDays(data?.totalCleanDays || 0);
             } catch (error) {
                 setError("Error fetching resource");
             } finally {
@@ -121,16 +125,19 @@ export default function ShowStreakDaysOnly() {
                 }, 3000);
                 
                 setStreak(data.currentStreak);
-                setUserRelpased(data?.relapse)
+                setLongestStreak(data.longestStreak);
+                setTotalCleanDays(data.totalCleanDays);
+                setUserRelapsed(data?.relapse);
                 
-                setRelapseNotification({
-                    show: true,
-                    message: "Your streak was reset due to inactivity. Starting from day one again !!!",
-                    type: "info",
-                    position: "bottom-right",
-                })
+                if (data?.relapse) {
+                    setRelapseNotification({
+                        show: true,
+                        message: "Your streak was reset due to inactivity. Starting from day one again!",
+                        type: "info",
+                        position: "bottom-right",
+                    });
+                }
             }
-
         } catch (error) {
             setError("Failed to update streak");
         }
@@ -154,84 +161,109 @@ export default function ShowStreakDaysOnly() {
     }
 
     return (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center card_bg text-white relative overflow-hidden px-4">
-            <AnimatePresence>
+        <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden px-4">
+            {/* Background Effect */}
+            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
             
-                {isVisible && (
-                    <motion.div
-                        key={animationKey}
-                        className="font-bold text-blue-400 flex items-center justify-center relative z-10"
-                        initial="hidden"
-                        animate="visible"
-                        exit="hidden"
-                    >
-                        {digits.map((digit, index) => (
-                            <motion.span
-                                key={index}
-                                className="inline-block mx-[0.5vmin] sm:mx-1 text-[20vmin] sm:text-[25vmin] md:text-[30vmin]"
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 200,
-                                    delay: index * 0.15,
-                                }}
-                            >
-                                {digit}
-                            </motion.span>
-                        ))}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/30 via-transparent to-purple-500/30 animate-pulse"></div>
 
-            <motion.div
-                className="mt-4 text-lg sm:text-2xl md:text-4xl text-blue-200 relative z-10"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.5 }}
-            >
-                Days Strong
-            </motion.div>
-            
-            <motion.div
-                className="mt-2 text-md sm:text-lg md:text-2xl text-blue-300 relative z-10"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-            >
-                {remainingTime.hours}h : {remainingTime.minutes}m :{" "}
-                {remainingTime.seconds}s remaining
-            </motion.div>
+            <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
+                <AnimatePresence>
+                    {isVisible && (
+                        <motion.div
+                            key={animationKey}
+                            className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center"
+                            initial="hidden"
+                            animate="visible"
+                            exit="hidden"
+                        >
+                            {digits.map((digit, index) => (
+                                <motion.span
+                                    key={index}
+                                    className="inline-block mx-[0.5vmin] sm:mx-1 text-[20vmin] sm:text-[25vmin] md:text-[30vmin] drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                                    initial={{ y: 50, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{
+                                        type: "spring",
+                                        stiffness: 200,
+                                        delay: index * 0.15,
+                                    }}
+                                >
+                                    {digit}
+                                </motion.span>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-            <motion.button
-                onClick={handleUpdateStreak}
-                className="mt-8 px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-2 border-blue-400 text-blue-400 rounded-full text-md sm:text-lg font-semibold shadow-lg hover:bg-blue-400 hover:text-white transition-all duration-300 ease-in-out relative z-10"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-            >
-                Update Streak
-            </motion.button>
+                <motion.div
+                    className="mt-4 text-2xl sm:text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-blue-400"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                >
+                    Days Strong
+                </motion.div>
+                
+                <motion.div
+                    className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-lg sm:text-xl"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                >
+                    <div className="flex items-center gap-2 text-blue-300">
+                        <Trophy size={24} className="text-blue-400" />
+                        <span>Longest: {longestStreak} days</span>
+                    </div>
+                    <div className="h-4 w-px bg-blue-800 hidden sm:block" />
+                    <div className="flex items-center gap-2 text-blue-300">
+                        <Award size={24} className="text-blue-400" />
+                        <span>Total: {totalCleanDays} days</span>
+                    </div>
+                </motion.div>
+                
+                <motion.div
+                    className="mt-4 text-xl sm:text-2xl text-blue-300/80 font-mono"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.5 }}
+                >
+                    <span className="px-4 py-2 rounded-lg bg-blue-950/30 backdrop-blur-sm">
+                        {remainingTime.hours.toString().padStart(2, '0')}:
+                        {remainingTime.minutes.toString().padStart(2, '0')}:
+                        {remainingTime.seconds.toString().padStart(2, '0')}
+                    </span>
+                </motion.div>
 
+                <motion.button
+                    onClick={handleUpdateStreak}
+                    className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-lg font-semibold 
+                              shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] 
+                              transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                >
+                    Update Streak
+                </motion.button>
+            </div>
+
+            {/* Toast notifications */}
             <Toast
                 show={notification.show}
                 message={notification.message}
                 type={notification.type}
                 position={notification.position}
-                onClose={() =>
-                    setNotification((prev) => ({ ...prev, show: false }))
-                }
+                onClose={() => setNotification((prev) => ({ ...prev, show: false }))}
             />
             
             <Toast
-                show={relpaseNotification.show}
-                message={relpaseNotification.message}
-                type={relpaseNotification.type}
-                position={relpaseNotification.position}
-                onClose={() =>
-                    setRelapseNotification((prev) => ({ ...prev, show: false }))
-                }
+                show={relapseNotification.show}
+                message={relapseNotification.message}
+                type={relapseNotification.type}
+                position={relapseNotification.position}
+                onClose={() => setRelapseNotification((prev) => ({ ...prev, show: false }))}
             />
-            
         </div>
     );
 }

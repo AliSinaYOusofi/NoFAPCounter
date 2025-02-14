@@ -4,7 +4,6 @@ export function middleware(request) {
     
     const authToken = request.cookies.get("token")?.value;
 
-    console.log(authToken, ' auth token')
     const protectedPaths = ["/dashboard", "/api/user_data", "/save_goal"];
 
     const isProtectedPath = protectedPaths.some((path) =>
