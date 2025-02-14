@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Award, Calendar, Clock, MessageSquare, User } from "lucide-react"
+import { Award, Calendar, Clock, MessageSquare, User, Target, Trophy } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { QuoteShower } from "./QuoteShower"
 import RetryButton from "./global/RetryButton"
@@ -80,7 +80,10 @@ export function UserDashBoard() {
     )
   }
 
-  const daysSinceStart = Math.floor((new Date() - new Date(userData?.startDate || new Date())) / (1000 * 60 * 60 * 24))
+  const daysSinceStart = Math.floor(
+    (new Date() - new Date(userData?.started_at || new Date())) / 
+    (1000 * 60 * 60 * 24)
+  )
 
   const DASHBOARD_ITEMS = [
     {
@@ -89,19 +92,34 @@ export function UserDashBoard() {
       value: userData.username,
     },
     {
-      icon: <Calendar size={24} />,
-      label: "Start Date",
-      value: new Date(userData.startDate).toLocaleDateString(),
-    },
-    {
       icon: <Award size={24} />,
       label: "Current Streak",
       value: `${userData.currentStreak} days`,
     },
     {
+      icon: <Trophy size={24} />,
+      label: "Longest Streak",
+      value: `${userData.longestStreak} days`,
+    },
+    {
+      icon: <Target size={24} />,
+      label: "Goal",
+      value: `${userData.goal_days} days`,
+    },
+    {
+      icon: <Calendar size={24} />,
+      label: "Start Date",
+      value: new Date(userData.started_at).toLocaleDateString(),
+    },
+    {
       icon: <Clock size={24} />,
       label: "Days Since Start",
       value: `${daysSinceStart} days`,
+    },
+    {
+      icon: <Award size={24} />,
+      label: "Total Clean Days",
+      value: `${userData.totalCleanDays} days`,
     },
   ]
 
@@ -116,15 +134,37 @@ export function UserDashBoard() {
             ))}
           </AnimatePresence>
         </div>
+
+        {/* Motivational Message Card */}
         <motion.div variants={cardVariants} className="mt-8 card_bg_right p-6 border border-gray-800 rounded-xl bg-black shadow-lg">
           <div className="flex items-center gap-3 mb-3">
             <MessageSquare size={24} className="text-blue-500" />
             <span className="text-lg font-semibold text-white">Motivational Message</span>
           </div>
-          <p className="text-gray-300 italic text-center ">
+          <p className="text-gray-300 italic text-center">
             "{userData.motivationalMessage || "Stay strong and keep going!"}"
           </p>
         </motion.div>
+
+        {/* Streak History */}
+        {userData.streakHistory && userData.streakHistory.length > 0 && (
+          <motion.div variants={cardVariants} className="mt-8 p-6 border border-gray-800 rounded-xl bg-black shadow-lg">
+            <h2 className="text-xl font-semibold text-white mb-4">Recent History</h2>
+            <div className="space-y-2">
+              {userData.streakHistory.map((log, index) => (
+                <div key={index} className="flex justify-between items-center text-gray-300">
+                  <span>{new Date(log.date).toLocaleDateString()}</span>
+                  <span className={`px-2 py-1 rounded ${
+                    log.status === 'clean' ? 'bg-green-900 text-green-100' : 'bg-red-900 text-red-100'
+                  }`}>
+                    {log.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

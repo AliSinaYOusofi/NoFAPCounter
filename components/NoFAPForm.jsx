@@ -7,10 +7,11 @@ import {
   CircleChevronDown,
   BadgeAlert,
   CircleX,
+  User,
+  Target,
+  MessageSquare,
 } from "lucide-react";
 import { usernameValidator } from "@/utils/validators/usernameValidator";
-import { currentSreakValidator } from "@/utils/validators/currentStreakValidator";
-import { dateValidator } from "@/utils/validators/dateValidator";
 import { motion, AnimatePresence } from "framer-motion";
 import { idValidator } from "@/utils/validators/id_validator";
 import { useRouter } from "next/navigation";
@@ -28,11 +29,6 @@ const saveNofapDataAction = async (formData) => {
 
     if (response.ok) {
       const json = await response.json()
-      console.log(json, 'what the fuck')
-      const token = json.token;
-
-      localStorage.setItem("token", token);
-      
       return { success: json.success };
     }
 
@@ -68,13 +64,6 @@ const validateForm = (formData) => {
     errors.username = "Username is required";
   }
 
-  if (!dateValidator(formData.get("startDate"))) {
-    errors.startDate = "Either today or earlier date";
-  }
-
-  if (!currentSreakValidator(formData.get("currentStreak"))) {
-    errors.currentStreak = "Current streak should be a number";
-  }
   if (! idValidator(formData.get("id"))) {
     errors.id  = "Max 12, Min 1, no special chars"
   }
@@ -121,238 +110,147 @@ export function NofapForm({ className }) {
     }
   };
 
-  const loaderVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { duration: 0.5 },
-    },
-  };
-
-  const messageVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      transition: { duration: 0.3 },
-    },
-  };
-
-  const formVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5 },
-    },
-  };
-
   return (
-    <motion.div
-      className={`card w-full max-w-md bg-white ${className || ""}`}
-      variants={formVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="card-body">
-        <h2 className="card-title text-center mx-auto tracking-widest text-gray-900">
-          NoFAP Tracker
-        </h2>
-        <p className="text-gray-700">
-          Track your NoFap journey and stay motivated!
-        </p>
-        <form onSubmit={handleSubmit}>
+    
+      
+
+      <div className="relative z-10 w-full max-w-2xl mx-auto">
+        
+
+        <motion.form 
+          onSubmit={handleSubmit}
+          className="space-y-6 backdrop-blur-md bg-black/40 p-6 rounded-xl border border-gray-800/50"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
           <AnimatePresence>
             {state.success && (
               <motion.div
-                className="alert alert-success"
-                variants={messageVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                className="p-4 rounded-lg bg-green-500/20 border border-green-500/50 text-green-400 flex items-center justify-between"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
               >
-                <Check className="w-8 h-8 text-gray-200" />
-                <span className="text-gray-100 cursor-pointer">
-                  Your progress has been saved. Keep going strong!
-                </span>
+                <div className="flex items-center gap-2">
+                  <Check className="w-5 h-5" />
+                  <span>Your progress has been saved. Keep going strong!</span>
+                </div>
                 <CircleX
-                  onClick={() => {
-                    setState({ success: false, errors: null, pending: false });
-                  }}
-                  className="w-8 h-8 cursor-pointer text-gray-600 bg-gray-50 p-1 rounded-full"
+                  onClick={() => setState({ success: false, errors: null, pending: false })}
+                  className="w-5 h-5 cursor-pointer hover:text-green-300 transition-colors"
                 />
               </motion.div>
             )}
 
             {state.errors && (
               <motion.div
-                className="alert alert-error"
-                variants={messageVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
+                className="p-4 rounded-lg bg-red-500/20 border border-red-500/50 text-red-400 flex items-center justify-between"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
               >
-                <BadgeAlert className="w-8 h-8 text-gray-200" />
-                <span className="text-gray-100">
-                  {state.errors.form || "Failed to save info. Try again!"}
-                </span>
+                <div className="flex items-center gap-2">
+                  <BadgeAlert className="w-5 h-5" />
+                  <span>{state.errors.form || "Failed to save info. Try again!"}</span>
+                </div>
                 <CircleX
-                  onClick={() => {
-                    setState({ success: false, errors: null, pending: false });
-                  }}
-                  className="w-8 h-8 cursor-pointer text-gray-600 bg-gray-50 p-1 rounded-full"
+                  onClick={() => setState({ success: false, errors: null, pending: false })}
+                  className="w-5 h-5 cursor-pointer hover:text-red-300 transition-colors"
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="form-control">
-            <label className="label" htmlFor="username">
-              <span className="label-text text-gray-700">Username</span>
-            </label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              placeholder="JohnDoe123"
-              className="input input-bordered bg-gray-100 text-gray-700"
-              required
-              disabled={state.pending}
-            />
-            {state.errors?.username && (
-              <p className="text-red-500 text-sm mt-2">
-                {state.errors.username}
-              </p>
-            )}
-          </div>
-
-          <div className="form-control">
-            <label className="label" htmlFor="id">
-              <span className="label-text text-gray-700">ID</span>
-            </label>
-            <input
-              type="text"
-              id="id"
-              name="id"
-              placeholder="number or text"
-              className="input input-bordered bg-gray-100 text-gray-700"
-              required
-              disabled={state.pending}
-            />
-            {state.errors?.id && (
-              <p className="text-red-500 text-sm mt-2">
-                {state.errors.id}
-              </p>
-            )}
-          </div>
-
-          <div className="form-control">
-            <label className="label" htmlFor="startDate">
-              <span className="label-text text-gray-700">Start Date</span>
-            </label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              className="input input-bordered bg-gray-100 text-gray-700"
-              required
-              disabled={state.pending}
-            />
-            {state.errors?.startDate && (
-              <p className="text-red-500 text-sm mt-2">
-                {state.errors.startDate}
-              </p>
-            )}
-          </div>
-
-          <div className="flex relative flex-row items-center justify-between mt-5">
-            <div className="flex-grow mr-2">
-              <label className="label" htmlFor="currentStreak">
-                <span className="label-text text-gray-700">Current streak</span>
+          <div className="space-y-6">
+            <div className="form-control">
+              <label className="flex items-center gap-2 text-blue-400 mb-2">
+                <User size={20} />
+                <span>ID</span>
               </label>
               <input
-                id="currentStreak"
-                name="currentStreak"
-                min="0"
-                className="input input-bordered bg-gray-100 text-gray-700 w-full"
+                type="text"
+                name="id"
+                placeholder="Enter your unique ID"
+                className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                 required
                 disabled={state.pending}
               />
-              {state.errors?.currentStreak && (
-                <p className="text-red-500 text-sm mt-2">
-                  {state.errors.currentStreak}
-                </p>
+              {state.errors?.id && (
+                <p className="mt-2 text-red-400 text-sm">{state.errors.id}</p>
               )}
             </div>
 
-            <div className="absolute flex top-5 translate-y-[50%] right-5 flex-col items-center justify-center">
-              <button
-                type="button"
-                onClick={() => {
-                  const input = document.getElementById("currentStreak");
-                  input.value = Number.parseInt(input.value) + 1;
-                }}
-                className=""
+            <div className="form-control">
+              <label className="flex items-center gap-2 text-blue-400 mb-2">
+                <User size={20} />
+                <span>Username</span>
+              </label>
+              <input
+                type="text"
+                name="username"
+                placeholder="Enter your username"
+                className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
+                required
                 disabled={state.pending}
-              >
-                <CircleChevronUp className="w-5 h-5 text-gray-600" />
-              </button>
+              />
+              {state.errors?.username && (
+                <p className="mt-2 text-red-400 text-sm">{state.errors.username}</p>
+              )}
+            </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const input = document.getElementById("currentStreak");
-                  if (input.value > 0) {
-                    input.value = Number.parseInt(input.value) - 1;
-                  }
-                }}
-                className=""
+            <div className="form-control">
+              <label className="flex items-center gap-2 text-blue-400 mb-2">
+                <Target size={20} />
+                <span>Your Goal (days)</span>
+              </label>
+              <select
+                name="goal_days"
+                className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                 disabled={state.pending}
+                defaultValue="90"
               >
-                <CircleChevronDown className="w-5 h-5 text-gray-600" />
-              </button>
+                <option value="7">7 days</option>
+                <option value="30">30 days</option>
+                <option value="90">90 days (Recommended)</option>
+                <option value="180">180 days</option>
+                <option value="365">365 days</option>
+              </select>
+            </div>
+
+            <div className="form-control">
+              <label className="flex items-center gap-2 text-blue-400 mb-2">
+                <MessageSquare size={20} />
+                <span>Motivational Message</span>
+              </label>
+              <textarea
+                name="motivationalMessage"
+                placeholder="Write something to keep yourself motivated..."
+                className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors h-32 resize-none"
+                disabled={state.pending}
+              />
             </div>
           </div>
 
-          <div className="form-control">
-            <label className="label" htmlFor="motivationalMessage">
-              <span className="label-text text-gray-700">
-                Motivational Message
-              </span>
-            </label>
-            <textarea
-              id="motivationalMessage"
-              name="motivationalMessage"
-              placeholder="Write a message to keep yourself motivated..."
-              className="textarea textarea-bordered h-24 bg-gray-100 text-gray-700"
-              disabled={state.pending}
-            ></textarea>
+          <motion.button
+            type="submit"
+            className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            disabled={state.pending}
+          >
+            Start Your Journey
+            {state.pending && (
+              <span className="loading loading-spinner loading-sm" />
+            )}
+          </motion.button>
+
+          <div className="text-center mt-4">
+            <a href="/forward" className="text-blue-400 hover:text-blue-300 transition-colors">
+              Already have an account? Sign in
+            </a>
           </div>
-          <div className="form-control mt-6">
-            <button
-              type="submit"
-              className={`bg-black p-3 rounded-md flex items-center justify-center font-normal text-white`}
-              disabled={state.pending}
-            >
-              Save Progress
-              {state.pending && (
-                <motion.span
-                  className="loading ml-5 loading-spinner loading-sm"
-                  variants={loaderVariants}
-                  initial="hidden"
-                  animate="visible"
-                />
-              )}
-            </button>
-          </div>
-        </form>
-        <a href="/forward" className="text-black mt-4 hover:text-blue-500 hover:underline">Already Have an account</a>
+        </motion.form>
       </div>
-    </motion.div>
+    
   );
 }

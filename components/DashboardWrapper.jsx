@@ -8,6 +8,7 @@ import { Menu } from "lucide-react";
 import Tips from "@/components/Tips";
 import Goals from "@/components/Goals";
 import ContributionGraph from "@/components/global/Contribution";
+import Settings from "./Settings";
 
 export default function DashboardWrapper() {
     const [isOpen, setIsOpen] = useState(true);
@@ -21,9 +22,9 @@ export default function DashboardWrapper() {
         <div className="min-h-screen relative flex flex-col">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed z-[100] top-4 left-4 p-2 bg-[#3d3845] rounded-full text-white"
+                className="fixed z-[100] top-4 left-4 p-2   rounded-full text-white"
             >
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6 " />
             </button>
             <div className="flex flex-1 overflow-hidden">
                 {isOpen && (
@@ -51,6 +52,7 @@ export default function DashboardWrapper() {
                     {activeComponent === "graph" && (
                         <ContributionGraph key="graph" />
                     )}
+                    {activeComponent === 'settings' && <Settings />}
                 </div>
             </div>
         </div>

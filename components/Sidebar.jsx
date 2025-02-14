@@ -32,8 +32,8 @@ const itemVariants = {
     },
   },
   hover: {
-    scale: 1.05,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    scale: 1.02,
+    backgroundColor: "rgba(59, 130, 246, 0.1)",
     transition: {
       duration: 0.2,
     },
@@ -41,7 +41,6 @@ const itemVariants = {
 }
 
 export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveComponent }) {
-
   const items = [
     { name: "Dashboard", icon: <Home className="mr-2" />, component: 'dashboard' },
     { name: "Streak", icon: <Zap className="mr-2" />, component: 'streak' },
@@ -49,38 +48,55 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
     { name: "Goals", icon: <Target className="mr-2" />, component: 'goals' },
     { name: "Tips", icon: <Lightbulb className="mr-2" />, component: 'tips' },
     { name: "Settings", icon: <Settings className="mr-2" />, component: 'settings' },
-    { name: "graph", icon: <ChartNoAxesColumnIncreasing className="mr-2" />, component: 'graph' },
+    { name: "Graph", icon: <ChartNoAxesColumnIncreasing className="mr-2" />, component: 'graph' },
   ]
 
   return (
-    <AnimatePresence >
-      
+    <AnimatePresence>
       <motion.div
-        className="fixed  top-0 left-0 p-4 bg-black h-full w-64 text-gray-300 z-[99] flex flex-col"
+        className="fixed top-0 left-0 h-full w-64 z-[99] backdrop-blur-md bg-black/80"
         initial="hidden"
         animate={isOpen ? "visible" : "hidden"}
         exit="hidden"
         variants={sidebarVariants}
       >
-        <motion.ul className="space-y-2 mt-16 flex-grow" variants={sidebarVariants}>
-          {items.map((item, index) => (
-            <motion.li
-              key={index}
-              className={`p-2 rounded-lg cursor-pointer flex items-center transition-colors ${activeComponent === item.component ? "bg-blue-600" : ""}`}
-              variants={itemVariants}
-              whileHover="hover"
-              onClick={() =>  onItemClick(item.component)}
-            >
-              {React.cloneElement(item.icon, { className: "w-5 h-5 mr-3" })}
-              {item.name}
-            </motion.li>
-          ))}
-        </motion.ul>
-        <motion.div onClick={handleLogout} className="mt-auto rounded-lg" variants={itemVariants} whileHover="hover">
-          <motion.li className="p-2 cursor-pointer flex items-center transition-colors">
-            <LogOut  className="w-5 h-5 mr-3" />
-            Logout
-          </motion.li>
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-purple-500/10"></div>
+        <motion.div className="relative z-10 h-full flex flex-col p-4">
+          <div className="mt-8 mb-12 text-center">
+            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
+              NoFAP Tracker
+            </h2>
+          </div>
+
+          <motion.ul className="space-y-2 flex-grow" variants={sidebarVariants}>
+            {items.map((item, index) => (
+              <motion.li
+                key={index}
+                className={`p-3 rounded-lg cursor-pointer flex items-center transition-all duration-300
+                  ${activeComponent === item.component 
+                    ? "bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.2)]" 
+                    : "text-gray-300 hover:text-blue-400"}`}
+                variants={itemVariants}
+                whileHover="hover"
+                onClick={() => onItemClick(item.component)}
+              >
+                {React.cloneElement(item.icon, { 
+                  className: `w-5 h-5 mr-3 ${activeComponent === item.component ? "text-blue-400" : ""}` 
+                })}
+                <span className="font-medium">{item.name}</span>
+              </motion.li>
+            ))}
+          </motion.ul>
+
+          <motion.div 
+            onClick={handleLogout} 
+            className="mt-auto p-3 rounded-lg cursor-pointer flex items-center text-red-400 hover:bg-red-500/10 transition-all duration-300"
+            variants={itemVariants}
+            whileHover="hover"
+          >
+            <LogOut className="w-5 h-5 mr-3" />
+            <span className="font-medium">Logout</span>
+          </motion.div>
         </motion.div>
       </motion.div>
     </AnimatePresence>

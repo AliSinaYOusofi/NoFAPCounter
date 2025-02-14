@@ -29,7 +29,6 @@ export async function POST(req) {
                 { status: 404 }
             );
         }
-        
         return NextResponse.json(
             { success: true, updated_at: user.updated_at, currentStreak: user.currentStreak, start_date: user.started_at},
             { status: 200 }

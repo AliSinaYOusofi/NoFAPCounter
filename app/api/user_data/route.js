@@ -4,11 +4,9 @@ import jwt from "jsonwebtoken";
 const secretKey = process.env.SECRET_KEY;
 
 export async function GET(req, res) {
-  
+  let db;
   try {
-    
     let token = req.cookies.get("token")?.value;
-
     let decoded;
 
     try {
@@ -20,18 +18,20 @@ export async function GET(req, res) {
       );
     }
 
-    const db = await openDB();
+    db = await openDB();
 
     const user = await db.get(
-      "SELECT username, startDate, currentStreak, motivationalMessage, started_at, updated_at FROM users WHERE username = ?",
-      [decoded.username],
-      (err, row) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
-        }
-      },
+      `SELECT 
+        username, 
+        currentStreak,
+        longestStreak,
+        totalCleanDays,
+        motivationalMessage,
+        started_at,
+        updated_at,
+        goal_days
+      FROM users WHERE id = ?`, 
+      [decoded.id]
     );
 
     if (!user) {
@@ -41,9 +41,20 @@ export async function GET(req, res) {
       );
     }
 
+    // Get streak logs for the user
+    const streakLogs = await db.all(
+      "SELECT date, status, streak_count FROM streak_logs WHERE user_id = ? ORDER BY date DESC LIMIT 30",
+      [decoded.id]
+    );
+
     db.close();
-    return NextResponse.json({ success: true, ...user }, { status: 200 });
+    return NextResponse.json({ 
+      success: true, 
+      ...user,
+      streakHistory: streakLogs 
+    }, { status: 200 });
   } catch (error) {
+    if (db) db.close();
     console.error("Error fetching user data:", error);
 
     return NextResponse.json(
