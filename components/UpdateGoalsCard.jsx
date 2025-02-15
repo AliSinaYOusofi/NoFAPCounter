@@ -56,7 +56,7 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
 
     return (
         <motion.div
-            className="w-full max-w-md card_bg_top p-8 rounded-2xl shadow-2xl flex flex-col items-start space-y-6 relative border border-gray-800"
+            className="w-full max-w-md p-8 rounded-2xl shadow-2xl flex flex-col items-start space-y-6 relative border border-gray-800"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}

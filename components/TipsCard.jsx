@@ -29,7 +29,7 @@ export default function TipsCard({ title, description, number }) {
             <AnimatePresence>
                 {isExpanded && (
                     <motion.div
-                        className="fixed inset-0 card_bg bg-opacity-50 z-50 flex justify-center items-center"
+                        className="fixed inset-0 bg-gradient-to-b from-black via-gray-900 to-black bg-opacity-50 z-50 flex justify-center items-center"
                         initial="hidden"
                         animate="visible"
                         exit="hidden"
@@ -37,7 +37,7 @@ export default function TipsCard({ title, description, number }) {
                         transition={{ duration: 0.3 }}
                     >
                         <motion.div
-                            className="card_bg_bottom text-white p-8 rounded-2xl shadow-2xl flex flex-col items-start space-y-6 max-w-full h-full overflow-auto"
+                            className=" border border-gray-600 text-white p-8 rounded-2xl shadow-2xl flex flex-col items-start space-y-6 max-w-full h-full overflow-auto"
                             style={{ maxWidth: "60%", maxHeight: "70%" }}
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
@@ -80,7 +80,7 @@ export default function TipsCard({ title, description, number }) {
             </AnimatePresence>
             {!isExpanded && (
                 <motion.div
-                    className="w-full card_bg_right max-w-md border border-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col items-start space-y-4 hover:shadow-2xl transition-shadow duration-300"
+                    className="w-full  max-w-md border border-gray-700 text-white p-6 rounded-xl shadow-lg flex flex-col items-start space-y-4 hover:shadow-2xl transition-shadow duration-300"
                     initial="hidden"
                     animate="visible"
                     exit="hidden"

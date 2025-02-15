@@ -25,7 +25,7 @@ const containerVariants = {
 const DashboardCard = ({ icon, label, value }) => (
   <motion.div
     variants={cardVariants}
-    className="p-6 border card_bg_bottom border-gray-800 rounded-xl bg-black shadow-lg flex flex-col items-center text-center hover:border-gray-700 transition duration-300"
+    className="p-6 border  border-gray-800 rounded-xl flex flex-col items-center text-center hover:border-gray-700 transition duration-300"
   >
     <div className="mb-3 text-blue-500">{icon}</div>
     <span className="text-sm font-medium text-gray-400">{label}</span>
@@ -124,7 +124,7 @@ export function UserDashBoard() {
   ]
 
   return (
-    <div className="min-h-screen w-full bg-black p-6">
+    <div className="min-h-screen w-full bg-gradient-to-b from-black via-gray-900 to-black p-6">
       <motion.div initial="hidden" animate="visible" variants={containerVariants} className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-white mb-8">Dashboard</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -136,7 +136,7 @@ export function UserDashBoard() {
         </div>
 
         {/* Motivational Message Card */}
-        <motion.div variants={cardVariants} className="mt-8 card_bg_right p-6 border border-gray-800 rounded-xl bg-black shadow-lg">
+        <motion.div variants={cardVariants} className="mt-8  p-6 border border-gray-800 rounded-xl">
           <div className="flex items-center gap-3 mb-3">
             <MessageSquare size={24} className="text-blue-500" />
             <span className="text-lg font-semibold text-white">Motivational Message</span>
@@ -148,7 +148,7 @@ export function UserDashBoard() {
 
         {/* Streak History */}
         {userData.streakHistory && userData.streakHistory.length > 0 && (
-          <motion.div variants={cardVariants} className="mt-8 p-6 border border-gray-800 rounded-xl bg-black shadow-lg">
+          <motion.div variants={cardVariants} className="mt-8 p-6 border border-gray-800 rounded-xl">
             <h2 className="text-xl font-semibold text-white mb-4">Recent History</h2>
             <div className="space-y-2">
               {userData.streakHistory.map((log, index) => (
@@ -169,7 +169,7 @@ export function UserDashBoard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-8 border card_bg_top border-gray-800 rounded-xl p-6 bg-black shadow-lg"
+          className="mt-8 border  border-gray-800 rounded-xl p-6 shadow-lg"
         >
           <QuoteShower />
         </motion.div>
