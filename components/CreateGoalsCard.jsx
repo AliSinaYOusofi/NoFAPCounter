@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
+// TODO: toast messages for every component starting from goals
 export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [goal, setGoal] = useState("");
     const [description, setDescription] = useState("");

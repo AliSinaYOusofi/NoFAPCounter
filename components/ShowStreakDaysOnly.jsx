@@ -17,6 +17,7 @@ export default function ShowStreakDaysOnly() {
     const [refresh, setRefresh] = useState(false);
     const [animationKey, setAnimationKey] = useState(0);
     const [userRelapsed, setUserRelapsed] = useState(false);
+    const [updating, setUpdating] = useState(false)
 
     const [notification, setNotification] = useState({
         show: false,
@@ -94,6 +95,7 @@ export default function ShowStreakDaysOnly() {
     const digits = String(streak).padStart(4, "0").split("");
 
     const handleUpdateStreak = async () => {
+        setUpdating(true)
         setNotification({
             show: false,
             message: "",
@@ -140,6 +142,8 @@ export default function ShowStreakDaysOnly() {
             }
         } catch (error) {
             setError("Failed to update streak");
+        } finally {
+            setUpdating(false)
         }
     };
 
@@ -162,11 +166,7 @@ export default function ShowStreakDaysOnly() {
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden px-4">
-            {/* Background Effect */}
-            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
             
-            {/* Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/30 via-transparent to-purple-500/30 animate-pulse"></div>
 
             <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
                 <AnimatePresence>
@@ -245,6 +245,9 @@ export default function ShowStreakDaysOnly() {
                     whileTap={{ scale: 0.95 }}
                 >
                     Update Streak
+                    {updating && (
+                        <span className="ml-3 loading loading-spinner loading-sm" />
+                    )}
                 </motion.button>
             </div>
 

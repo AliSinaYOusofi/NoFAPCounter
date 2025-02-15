@@ -117,7 +117,7 @@ const noFapTips = [
 
 export default function Tips() {
     return (
-        <div className="w-full h-full bg-black text-white p-4 flex flex-col items-center text-center">
+        <div className="w-full h-full bg-gradient-to-r from-black via-gray-900 to-black text-white p-4 flex flex-col items-center text-center">
             <div className="mt-4 space-y-2 text-gray-300 flex flex-wrap gap-10 items-center justify-center">
                 {noFapTips.map((tip, index) => (
                     <TipsCard
