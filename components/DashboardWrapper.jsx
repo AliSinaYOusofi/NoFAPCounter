@@ -9,6 +9,7 @@ import Tips from "@/components/Tips";
 import Goals from "@/components/Goals";
 import ContributionGraph from "@/components/global/Contribution";
 import Settings from "./Settings";
+import ContributionWrapper from "./global/ContributionWrapper";
 
 export default function DashboardWrapper() {
     const [isOpen, setIsOpen] = useState(true);
@@ -50,7 +51,7 @@ export default function DashboardWrapper() {
                     {activeComponent === "tips" && <Tips key="tips" />}
                     {activeComponent === "goals" && <Goals key="goals" />}
                     {activeComponent === "graph" && (
-                        <ContributionGraph key="graph" />
+                        <ContributionWrapper key="graph" />
                     )}
                     {activeComponent === 'settings' && <Settings />}
                 </div>

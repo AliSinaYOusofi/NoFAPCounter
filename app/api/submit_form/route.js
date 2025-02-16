@@ -95,21 +95,23 @@ export async function POST(req) {
       ]
     );
 
-    const token = await signToken(
-      { username: sanitizedUsername, id: sanitizedID },
-      secret_key
+    // Create initial milestone for starting the journey
+    await db.run(
+      `INSERT INTO milestones (
+        user_id,
+        days_reached,
+        achieved_at,
+        milestone_type
+      ) VALUES (?, ?, ?, ?)`,
+      [
+        sanitizedID,
+        0,
+        currentDate,
+        'personal_best'
+      ]
     );
 
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
-      path: "/"
-    };
-
-    const cookieString = serialize("token", token, cookieOptions);
-
+    // Create initial streak log
     await db.run(
       `INSERT INTO streak_logs (
         user_id,
@@ -124,6 +126,21 @@ export async function POST(req) {
         0
       ]
     );
+
+    const token = await signToken(
+      { username: sanitizedUsername, id: sanitizedID },
+      secret_key
+    );
+
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 365 * 10, // 10 years
+      path: "/"
+    };
+
+    const cookieString = serialize("token", token, cookieOptions);
 
     await db.close();
 

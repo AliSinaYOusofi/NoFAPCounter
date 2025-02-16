@@ -44,7 +44,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
   const items = [
     { name: "Dashboard", icon: <Home className="mr-2" />, component: 'dashboard' },
     { name: "Streak", icon: <Zap className="mr-2" />, component: 'streak' },
-    { name: "Progress", icon: <BarChart className="mr-2" />, component: 'progress' },
+    // { name: "Progress", icon: <BarChart className="mr-2" />, component: 'progress' },
     { name: "Goals", icon: <Target className="mr-2" />, component: 'goals' },
     { name: "Tips", icon: <Lightbulb className="mr-2" />, component: 'tips' },
     { name: "Settings", icon: <Settings className="mr-2" />, component: 'settings' },
@@ -63,9 +63,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
         <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 via-transparent to-purple-500/10"></div>
         <motion.div className="relative z-10 h-full flex flex-col p-4">
           <div className="mt-8 mb-12 text-center">
-            <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-blue-600">
-              NoFAP Tracker
-            </h2>
+            
           </div>
 
           <motion.ul className="space-y-2 flex-grow" variants={sidebarVariants}>
