@@ -1,20 +1,12 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import {
-  format,
-  eachDayOfInterval,
-  subYears,
-  startOfWeek,
-  addDays,
-  subDays,
-} from "date-fns";
-import { motion } from "framer-motion";
-import { Calendar, GitCommit } from "lucide-react";
+import { useEffect, useState } from "react"
+import { format, eachDayOfInterval, subDays } from "date-fns"
+import { motion } from "framer-motion"
+import { Calendar, GitCommit, ChevronRight, ChevronLeft, Flame, Target } from "lucide-react"
 
-const Tooltip = ({ date, count, children }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
+const Tooltip = ({ date, isStreakDay, streakCount, milestone, children }) => {
+  const [isVisible, setIsVisible] = useState(false)
   return (
     <div
       className="relative"
@@ -24,7 +16,7 @@ const Tooltip = ({ date, count, children }) => {
       {children}
       {isVisible && (
         <motion.div
-          className="absolute z-10 p-3 text-sm font-medium text-white bg-gray-800 rounded-lg shadow-lg tooltip"
+          className="absolute z-10 p-3 text-sm font-medium text-white bg-gray-800/95 backdrop-blur-sm rounded-lg shadow-lg tooltip"
           style={{
             width: "200px",
             left: "50%",
@@ -36,177 +28,246 @@ const Tooltip = ({ date, count, children }) => {
           transition={{ duration: 0.2 }}
         >
           <div className="flex items-center mb-2">
-            <Calendar className="w-4 h-4 mr-2" />
-            <span>{date}</span>
+            <Calendar className="w-4 h-4 mr-2 text-blue-400" />
+            <span>{format(new Date(date), "MMMM d, yyyy")}</span>
           </div>
           <div className="flex items-center">
-            <GitCommit className="w-4 h-4 mr-2" />
+            {isStreakDay ? (
+              <Flame className="w-4 h-4 mr-2 text-orange-500" />
+            ) : (
+              <GitCommit className="w-4 h-4 mr-2 text-gray-400" />
+            )}
             <span>
-              {count} contribution{count !== 1 ? "s" : ""}
+              {isStreakDay ? `Day ${streakCount} of streak` : "Not in streak"}
             </span>
           </div>
+          {milestone && (
+            <div className="flex items-center mt-2 text-yellow-400">
+              <Target className="w-4 h-4 mr-2" />
+              <span>{milestone}</span>
+            </div>
+          )}
         </motion.div>
       )}
     </div>
-  );
-};
+  )
+}
 
 export default function ContributionGraph() {
-  const [contributions, setContributions] = useState([]);
-  const [maxStreak, setMaxStreak] = useState(0);
-  const [startStreakDate, setStartStreakDate] = useState(null);
+  const [contributions, setContributions] = useState([])
+  const [maxStreak, setMaxStreak] = useState(0)
+  const [startStreakDate, setStartStreakDate] = useState(null)
+  const [endStreakDate, setEndStreakDate] = useState(null)
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
+  const [milestones, setMilestones] = useState([])
+  const [goalDays, setGoalDays] = useState(90)
 
   useEffect(() => {
-    fetchContributions();
-  }, []);
+    fetchData()
+  }, [])
 
-  const fetchContributions = async () => {
+  const fetchData = async () => {
     try {
-      const response = await fetch("/api/streak", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const [streakResponse, milestonesResponse] = await Promise.all([
+        fetch("/api/streak", { method: "POST" }),
+        fetch("/api/milestones")
+      ])
 
-      const data = await response.json();
+      const [streakData, milestonesData] = await Promise.all([
+        streakResponse.json(),
+        milestonesResponse.json()
+      ])
 
-      if (data.success) {
-        setMaxStreak(data.currentStreak);
-        generateContributionData(data.currentStreak, data.updated_at);
+      if (streakData.success) {
+        setMaxStreak(streakData.currentStreak)
+        setGoalDays(streakData.goal_days || 90)
+        generateContributionData(streakData.currentStreak, streakData.started_at)
+      }
+
+      if (milestonesData.success) {
+        setMilestones(milestonesData.data)
       }
     } catch (error) {
-      console.error("Error fetching contributions:", error);
+      console.error("Error fetching data:", error)
     }
-  };
+  }
 
-  const generateContributionData = (currentStreak, lastUpdated) => {
-    const endDate = new Date();
-    const startDate = subYears(endDate, 3);
+  const generateContributionData = (currentStreak, started_at) => {
+    const endDate = new Date() // Use today's date
+    // Use the provided started_at date as the start date
+    const startDate = new Date(started_at)
+    setStartStreakDate(startDate)
+    setEndStreakDate(endDate)
 
-    const streakEnd = new Date(lastUpdated);
-    const streakStart = subDays(streakEnd, currentStreak - 1);
-    setStartStreakDate(streakStart); // Save the start of the streak
-
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-    setContributions(
-      days.map((date) => {
-        const formattedDate = format(date, "yyyy-MM-dd");
-        const isStreakDay = date >= streakStart && date <= streakEnd;
-        return {
-          date: formattedDate,
-          count: isStreakDay ? 1 : 0,
-        };
-      })
-    );
-  };
-
-  const getContributionColor = (count) => {
-    return count > 0 ? "bg-blue-500" : "bg-gray-500";
-  };
-
-  // Generate weeks from the contributions. Each week is an array of day objects.
-  const generateWeeks = () => {
-    const weeks = [];
-    const startingDate = startStreakDate ? new Date(startStreakDate) : new Date();
-    const firstDay = startOfWeek(startingDate);
-
-    for (let i = 0; i < 53; i++) {
-      const week = [];
-      for (let j = 0; j < 7; j++) {
-        const day = addDays(firstDay, i * 7 + j);
-        const contribution = contributions.find(
-          (c) => c.date === format(day, "yyyy-MM-dd")
-        );
-        week.push({
-          date: format(day, "yyyy-MM-dd"),
-          count: contribution ? contribution.count : 0,
-        });
+    const days = eachDayOfInterval({ start: startDate, end: endDate })
+    const contributionsData = days.map((date) => {
+      const formattedDate = format(date, "yyyy-MM-dd")
+      const milestone = milestones.find(
+        (m) => format(new Date(m.achieved_at), "yyyy-MM-dd") === formattedDate
+      )
+      const dayDiff = Math.floor((endDate - date) / (1000 * 60 * 60 * 24))
+      const isToday = format(date, "yyyy-MM-dd") === format(endDate, "yyyy-MM-dd")
+      return {
+        date: formattedDate,
+        isStreakDay: dayDiff < currentStreak, // True if within current streak
+        streakCount: dayDiff < currentStreak ? currentStreak - dayDiff : 0,
+        milestone: milestone?.milestone_type
+          ? `${milestone.days_reached} Days ${milestone.milestone_type.replace('_', ' ')}`
+          : null,
+        isToday
       }
-      weeks.push(week);
-    }
-    return weeks;
-  };
+    })
+    setContributions(contributionsData)
 
-  // Compute weeks once for both the month labels and the grid.
-  const weeks = generateWeeks();
+    const daysPerPage = 7 * 5 // 5 weeks per page
+    const calculatedTotalPages = Math.ceil(contributionsData.length / daysPerPage)
+    setTotalPages(calculatedTotalPages)
+  }
 
-  // Build the month labels without repeating a month within the same year.
-  let lastMonthYear = "";
-  const monthLabels = weeks.map((week, weekIndex) => {
-    const weekStartDate = new Date(week[0].date);
-    const currentMonthYear = format(weekStartDate, "yyyy-MM");
-    let label = "";
-    // Label if it's the first week or if the month-year changes.
-    if (weekIndex === 0 || currentMonthYear !== lastMonthYear) {
-      label = format(weekStartDate, "MMM");
-      lastMonthYear = currentMonthYear;
+  const getContributionColor = (isStreakDay, hasMilestone, isToday) => {
+    if (hasMilestone) return "bg-yellow-500 ring-2 ring-yellow-400/50"
+    if (isToday) return "bg-blue-500" // Highlight today
+    if (isStreakDay) return "bg-green-500"
+    return "bg-gray-800" // Non-streak days
+  }
+
+  const daysPerPage = 7 * 5 // 5 weeks per page
+  const paginatedContributions = contributions.slice(
+    currentPage * daysPerPage,
+    (currentPage + 1) * daysPerPage
+  )
+
+  // Build the grid and pad the first week with empty cells based on its day-of-week
+  const generateWeeks = () => {
+    const weeks = []
+    if (paginatedContributions.length === 0) return weeks
+
+    // Get day-of-week of the first date (0 = Sunday, 6 = Saturday)
+    const firstDate = new Date(paginatedContributions[0].date)
+    const startOffset = firstDate.getDay()
+    const paddedContributions = [
+      ...Array(startOffset).fill(null),
+      ...paginatedContributions
+    ]
+
+    // If the last week is incomplete, pad with empty cells at the end
+    const remainder = paddedContributions.length % 7
+    if (remainder !== 0) {
+      paddedContributions.push(...Array(7 - remainder).fill(null))
     }
-    return (
-      <div key={weekIndex} className="w-3 text-xs text-gray-500 text-center">
-        {label}
-      </div>
-    );
-  });
+
+    for (let i = 0; i < paddedContributions.length / 7; i++) {
+      weeks.push(paddedContributions.slice(i * 7, i * 7 + 7))
+    }
+    return weeks
+  }
+
+  const weeks = generateWeeks()
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleNextPage = () => {
+    setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
+  }
 
   return (
-    <div className="card_bg_top w-full h-full flex flex-col items-center justify-center">
-      <div className="p-4">
-        {/* Month Labels */}
-        <div className="flex mb-2">{monthLabels}</div>
-
-        {/* Contribution Graph Grid */}
-        <motion.div
-          className="flex gap-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="flex flex-col gap-1">
-              {week.map((day, dayIndex) => (
-                <Tooltip
-                  key={`${weekIndex}-${dayIndex}`}
-                  date={day.date}
-                  count={day.count}
-                >
-                  <motion.div
-                    className={`w-3 h-3 rounded-sm ${getContributionColor(
-                      day.count
-                    )}`}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3 }}
-                    whileHover={{ scale: 1.2 }}
-                  />
-                </Tooltip>
-              ))}
+    <div className="w-full max-w-3xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white">Streak Calendar</h2>
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-gray-400">Goal: {goalDays} days</div>
+          <div className="text-sm text-gray-400">Progress: {Math.round((maxStreak / goalDays) * 100)}%</div>
+        </div>
+      </div>
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-lg font-semibold text-gray-700">
+          {startStreakDate && endStreakDate && (
+            <>
+              {format(new Date(startStreakDate), "MMMM d, yyyy")} -{" "}
+              {format(new Date(endStreakDate), "MMMM d, yyyy")}
+            </>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 0}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <span className="text-gray-600">
+            Page {currentPage + 1} of {totalPages}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages - 1}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      </div>
+      <div className="bg-gray-800/50 rounded-lg p-4">
+        <div className="grid grid-cols-7 gap-2">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div key={day} className="text-center text-sm font-medium text-gray-400">
+              {day}
             </div>
           ))}
-        </motion.div>
-
-        {/* Legend */}
-        <motion.div
-          className="flex items-center gap-2 mt-4 text-sm text-gray-600"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.3 }}
-        >
-          <span>Less</span>
-          <div className="flex gap-1">
-            {[
-              "bg-gray-100",
-              "bg-blue-200",
-              "bg-blue-300",
-              "bg-blue-400",
-              "bg-blue-500",
-            ].map((color, index) => (
-              <div key={index} className={`w-3 h-3 rounded-sm ${color}`} />
-            ))}
+          {weeks.map((week, weekIndex) =>
+            week.map((day, dayIndex) => (
+              <div key={`${weekIndex}-${dayIndex}`} className="flex justify-center">
+                {day ? (
+                  <Tooltip
+                    date={day.date}
+                    isStreakDay={day.isStreakDay}
+                    streakCount={day.streakCount}
+                    milestone={day.milestone}
+                  >
+                    <motion.div
+                      className={`w-8 h-8 rounded-md ${getContributionColor(
+                        day.isStreakDay,
+                        day.milestone,
+                        day.isToday
+                      )}`}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        duration: 0.3,
+                        delay: (weekIndex * 7 + dayIndex) * 0.02,
+                      }}
+                      whileHover={{ scale: 1.2 }}
+                    />
+                  </Tooltip>
+                ) : (
+                  <div className="w-8 h-8" /> // Empty cell for alignment
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+      <div className="mt-6 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-green-500" />
+            <span className="text-sm text-gray-400">Streak Day</span>
           </div>
-          <span>More</span>
-        </motion.div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-yellow-500 ring-2 ring-yellow-400/50" />
+            <span className="text-sm text-gray-400">Milestone</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-sm bg-blue-500" />
+            <span className="text-sm text-gray-400">Today</span>
+          </div>
+        </div>
+        <div className="text-lg font-bold text-white">Current Streak: {maxStreak} days</div>
       </div>
     </div>
-  );
+  )
 }
