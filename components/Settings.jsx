@@ -12,6 +12,8 @@ export default function Settings() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false);
+    const [deleting, setDeleting] = useState(false)
+
     const [notification, setNotification] = useState({
         show: false,
         message: "",
@@ -82,7 +84,6 @@ export default function Settings() {
     };
 
     const handleDeleteAccount = async () => {
-
         try {
             const response = await fetch("/api/delete_account", {
                 method: "DELETE",
@@ -93,6 +94,7 @@ export default function Settings() {
             window.location.href = "/";
         } catch (error) {
             setError("Failed to delete account");
+        } finally {
         }
     };
 
@@ -115,6 +117,7 @@ export default function Settings() {
                             <h3 className="text-xl font-bold text-red-400 flex items-center gap-2">
                                 <AlertTriangle size={24} />
                                 Delete Account
+                                
                             </h3>
                             <button 
                                 onClick={() => setShowDeleteModal(false)}
@@ -178,11 +181,7 @@ export default function Settings() {
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden p-6">
-            {/* Background Effect */}
-            <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
             
-            {/* Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/30 via-transparent to-purple-500/30 animate-pulse"></div>
 
             <div className="relative z-10 w-full max-w-2xl mx-auto">
                 <motion.h1 

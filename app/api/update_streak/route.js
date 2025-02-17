@@ -32,9 +32,7 @@ export async function POST(req) {
         const currentDate = new Date().toISOString().split('T')[0];
         const lastUpdated = user.updated_at;
 
-        // Check if this is the very first update
         if (user.currentStreak === 0) {
-            // Update the existing streak log instead of creating a new one
             await db.run(
                 `UPDATE streak_logs 
                 SET status = ?, streak_count = ?
@@ -42,7 +40,6 @@ export async function POST(req) {
                 ['clean', 1, user.id, currentDate]
             );
 
-            // Update user record
             await db.run(
                 `UPDATE users 
                 SET currentStreak = 1, 
@@ -52,6 +49,17 @@ export async function POST(req) {
                 WHERE id = ?`,
                 [currentDate, user.id]
             );
+
+            await db.run(
+                `
+                    UPDATE  milestones
+                    SET 
+                        days_reached = 1,
+                        achieved_at = ?
+                    WHERE user_id = ?
+                `,
+                [currentDate, decoded.id]
+            )
 
             db.close();
             return NextResponse.json(
@@ -67,7 +75,6 @@ export async function POST(req) {
             );
         }
         
-        // Then check if already updated today
         if (currentDate === lastUpdated) {
             return NextResponse.json(
                 { 
@@ -81,7 +88,6 @@ export async function POST(req) {
             );
         }
 
-        // Rest of the logic for continuing streaks
         let newStreak = user.currentStreak;
         let newLongestStreak = user.longestStreak;
         let newTotalCleanDays = user.totalCleanDays;
@@ -122,7 +128,16 @@ export async function POST(req) {
             WHERE user_id = ? AND date = ?`,
             [status, newStreak, user.id, currentDate]
         );
-
+        const milestonesToCheck = [
+            { days: 7, milestone_type: 'weekly' },
+            { days: 30, milestone_type: 'monthly' },
+            { days: 60, milestone_type: 'monthly' },
+            { days: 90, milestone_type: 'monthly' },
+            { days: 120, milestone_type: 'monthly' },
+            { days: 365, milestone_type: 'yearly' }
+        ];
+        
+        console.log(newStreak, ' new streak')
         if (newStreak === user.goal_days) {
             await db.run(
                 `INSERT INTO milestones (
@@ -132,6 +147,31 @@ export async function POST(req) {
                     milestone_type
                 ) VALUES (?, ?, ?, ?)`,
                 [user.id, newStreak, currentDate, 'goal_reached']
+            );
+        }
+        else {
+            for (const milestone of milestonesToCheck) {
+                
+                if (newStreak === milestone.days) {
+                    await db.run(
+                        `INSERT INTO milestones (
+                            user_id,
+                            days_reached,
+                            achieved_at,
+                            milestone_type
+                        ) VALUES (?, ?, ?, ?)`,
+                    [user.id, newStreak, currentDate, milestone.milestone_type]
+                    );
+                }
+            }
+            await db.run(
+                `INSERT INTO milestones (
+                    user_id,
+                    days_reached,
+                    achieved_at,
+                    milestone_type
+                ) VALUES (?, ?, ?, ?)`,
+            [user.id, newStreak, currentDate, 'personal_best']
             );
         }
         

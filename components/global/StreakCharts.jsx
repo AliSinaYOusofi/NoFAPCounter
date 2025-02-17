@@ -200,11 +200,7 @@ export default function StreakCharts() {
                 }
               }}
             />
-            {userData?.motivationalMessage && (
-              <div className="absolute inset-0 flex items-center justify-center text-center p-8">
-                <p className="text-gray-400 text-sm italic">"{userData.motivationalMessage}"</p>
-              </div>
-            )}
+            
           </div>
         </motion.div>
 
@@ -234,7 +230,7 @@ export default function StreakCharts() {
                 {milestone.milestone_type === 'monthly' && <Award className="w-4 h-4 text-purple-500" />}
                 <div>
                   <p className="text-white font-medium">
-                    {milestone.days_reached} Days {milestone.milestone_type.replace('_', ' ')}
+                    {milestone.days_reached} Day(s) {milestone.milestone_type.replace('_', ' ')}
                   </p>
                   <p className="text-sm text-gray-400">
                     {new Date(milestone.achieved_at).toLocaleDateString()}

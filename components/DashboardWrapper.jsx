@@ -29,7 +29,7 @@ export default function DashboardWrapper() {
             </button>
             <div className="flex flex-1 overflow-hidden">
                 {isOpen && (
-                    <div className=" md:flex md:w-60 bg-black">
+                    <div className=" md:flex md:w-60 bg-gradient-to-b from-black via-gray-900 to-black">
                         <Sidebar
                             isOpen={isOpen}
                             setIsOpen={setIsOpen}
@@ -40,7 +40,7 @@ export default function DashboardWrapper() {
                     </div>
                 )}
                 <div
-                    className={`flex-1 ${isOpen ? "md:w-[calc(100%-15rem)]" : "w-full"} bg-green-400 flex items-center justify-center`}
+                    className={`flex-1 ${isOpen ? "md:w-[calc(100%-15rem)]" : "w-full"} flex items-center justify-center`}
                 >
                     {activeComponent === "streak" && (
                         <ShowStreakDaysOnly key="streak" />
