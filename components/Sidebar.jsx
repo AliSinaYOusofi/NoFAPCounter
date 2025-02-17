@@ -50,11 +50,11 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
     { name: "Settings", icon: <Settings className="mr-2" />, component: 'settings' },
     { name: "Graph", icon: <ChartNoAxesColumnIncreasing className="mr-2" />, component: 'graph' },
   ]
-
+  const [loggingOut, setLoggingout] = useState(false)
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed top-0 left-0 h-full w-64 z-[99] backdrop-blur-md bg-black/80"
+        className="fixed top-0 left-0 h-full w-64 z-[99] bg-gradient-to-b from-black via-gray-900 to-black"
         initial="hidden"
         animate={isOpen ? "visible" : "hidden"}
         exit="hidden"
@@ -86,15 +86,19 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
             ))}
           </motion.ul>
 
-          <motion.div 
-            onClick={handleLogout} 
+          <motion.button 
+            onClick={() => handleLogout(setLoggingout)} 
             className="mt-auto p-3 rounded-lg cursor-pointer flex items-center text-red-400 hover:bg-red-500/10 transition-all duration-300"
             variants={itemVariants}
             whileHover="hover"
+            disabled={loggingOut}
           >
             <LogOut className="w-5 h-5 mr-3" />
             <span className="font-medium">Logout</span>
-          </motion.div>
+            {
+              loggingOut && <span className="loading loading-spinner ml-10"> </span>
+            }
+          </motion.button>
         </motion.div>
       </motion.div>
     </AnimatePresence>

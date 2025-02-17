@@ -1,5 +1,6 @@
-export default async function handleLogout() {
+export default async function handleLogout(setLoggingout) {
 
+    setLoggingout(true)
     try {
         await fetch("/api/logout", { 
             method: "POST",
@@ -9,5 +10,7 @@ export default async function handleLogout() {
         window.location.href = "/forward";
     } catch (error) {
         alert("Failed to logout");
+    } finally {
+        setLoggingout(false)
     }
 }

@@ -179,7 +179,7 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete, setRefre
                 <AnimatePresence>
                     {showUpdateCard && (
                         <motion.div
-                            className="fixed inset-0 bg-gradient-to-b from-black via-gray-900 to-black  bg-opacity-90 flex items-center justify-center z-50"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm  bg-opacity-90 flex items-center justify-center z-50"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}

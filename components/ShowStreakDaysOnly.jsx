@@ -6,6 +6,7 @@ import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
 import { Trophy, Award } from "lucide-react";
 
+// TODO: add a dulingo animation like when updating the streak
 export default function ShowStreakDaysOnly() {
     const [isVisible, setIsVisible] = useState(false);
     const [dayProgress, setDayProgress] = useState(0);

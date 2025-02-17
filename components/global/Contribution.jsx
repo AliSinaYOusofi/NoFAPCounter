@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { format, eachDayOfInterval, subDays } from "date-fns"
 import { motion } from "framer-motion"
 import { Calendar, GitCommit, ChevronRight, ChevronLeft, Flame, Target } from "lucide-react"
+import RetryButton from "./RetryButton"
 
 const Tooltip = ({ date, isStreakDay, streakCount, milestone, children }) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -62,40 +63,12 @@ export default function ContributionGraph() {
   const [totalPages, setTotalPages] = useState(1)
   const [milestones, setMilestones] = useState([])
   const [goalDays, setGoalDays] = useState(90)
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
-  const fetchData = async () => {
-    try {
-      const [streakResponse, milestonesResponse] = await Promise.all([
-        fetch("/api/streak", { method: "POST" }),
-        fetch("/api/milestones")
-      ])
-
-      const [streakData, milestonesData] = await Promise.all([
-        streakResponse.json(),
-        milestonesResponse.json()
-      ])
-
-      if (streakData.success) {
-        setMaxStreak(streakData.currentStreak)
-        setGoalDays(streakData.goal_days || 90)
-        generateContributionData(streakData.currentStreak, streakData.started_at)
-      }
-
-      if (milestonesData.success) {
-        setMilestones(milestonesData.data)
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error)
-    }
-  }
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
+  const [refresh, setRefresh] = useState(false)
 
   const generateContributionData = (currentStreak, started_at) => {
-    const endDate = new Date() // Use today's date
-    // Use the provided started_at date as the start date
+    const endDate = new Date()
     const startDate = new Date(started_at)
     setStartStreakDate(startDate)
     setEndStreakDate(endDate)
@@ -110,7 +83,7 @@ export default function ContributionGraph() {
       const isToday = format(date, "yyyy-MM-dd") === format(endDate, "yyyy-MM-dd")
       return {
         date: formattedDate,
-        isStreakDay: dayDiff < currentStreak, // True if within current streak
+        isStreakDay: dayDiff < currentStreak,
         streakCount: dayDiff < currentStreak ? currentStreak - dayDiff : 0,
         milestone: milestone?.milestone_type
           ? `${milestone.days_reached} Days ${milestone.milestone_type.replace('_', ' ')}`
@@ -120,30 +93,29 @@ export default function ContributionGraph() {
     })
     setContributions(contributionsData)
 
-    const daysPerPage = 7 * 5 // 5 weeks per page
+    const daysPerPage = 7 * 5
     const calculatedTotalPages = Math.ceil(contributionsData.length / daysPerPage)
     setTotalPages(calculatedTotalPages)
   }
 
   const getContributionColor = (isStreakDay, hasMilestone, isToday) => {
     if (hasMilestone) return "bg-yellow-500 ring-2 ring-yellow-400/50"
-    if (isToday) return "bg-blue-500" // Highlight today
+    if (isToday && isStreakDay) return 'bg-gradient-to-r from-blue-500 to-green-500';
+    if (isToday ) return "bg-blue-500"
     if (isStreakDay) return "bg-green-500"
-    return "bg-gray-800" // Non-streak days
+    return "bg-gray-800" 
   }
 
-  const daysPerPage = 7 * 5 // 5 weeks per page
+  const daysPerPage = 7 * 5
   const paginatedContributions = contributions.slice(
     currentPage * daysPerPage,
     (currentPage + 1) * daysPerPage
   )
 
-  // Build the grid and pad the first week with empty cells based on its day-of-week
   const generateWeeks = () => {
     const weeks = []
     if (paginatedContributions.length === 0) return weeks
 
-    // Get day-of-week of the first date (0 = Sunday, 6 = Saturday)
     const firstDate = new Date(paginatedContributions[0].date)
     const startOffset = firstDate.getDay()
     const paddedContributions = [
@@ -151,7 +123,6 @@ export default function ContributionGraph() {
       ...paginatedContributions
     ]
 
-    // If the last week is incomplete, pad with empty cells at the end
     const remainder = paddedContributions.length % 7
     if (remainder !== 0) {
       paddedContributions.push(...Array(7 - remainder).fill(null))
@@ -173,9 +144,62 @@ export default function ContributionGraph() {
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
   }
 
+  useEffect(() => {
+    fetchData()
+  }, [refresh])
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [streakResponse, milestonesResponse] = await Promise.all([
+        fetch("/api/streak", { method: "POST" }),
+        fetch("/api/milestones")
+      ])
+
+      const [streakData, milestonesData] = await Promise.all([
+        streakResponse.json(),
+        milestonesResponse.json()
+      ])
+
+      if (streakData.success) {
+        setMaxStreak(streakData.currentStreak)
+        setGoalDays(streakData.goal_days || 90)
+        console.log(streakData, ' the streak data')
+        generateContributionData(streakData.currentStreak, streakData.started_at)
+      }
+
+      if (milestonesData.success) {
+        setMilestones(milestonesData.data)
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error)
+      setError(error?.message || "Failed to fetch data")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center"> 
+        <span className="loading loading-spinner"> </span> 
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+        <div className="w-screen h-screen flex-col flex items-center justify-center bg-black">
+            <p className="text-red-500">Error: {error}</p>
+            <RetryButton setRefresh={setRefresh} />
+        </div>
+    );
+  }
+
   return (
-    <div className="w-full max-w-3xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full mt-10 max-w-xl md:max-w-3xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
+      
+      <div className="flex  items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-white">Streak Calendar</h2>
         <div className="flex items-center gap-4">
           <div className="text-sm text-gray-400">Goal: {goalDays} days</div>
@@ -195,9 +219,9 @@ export default function ContributionGraph() {
           <button
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="p-2 rounded-full border border-gray-400 cursor-pointer group transition-colors disabled:opacity-50"
           >
-            <ChevronLeft className="w-5 h-5 text-gray-600" />
+            <ChevronLeft className="w-5 h-5 text-gray-300 group-hover:text-white" />
           </button>
           <span className="text-gray-600">
             Page {currentPage + 1} of {totalPages}
@@ -205,9 +229,9 @@ export default function ContributionGraph() {
           <button
             onClick={handleNextPage}
             disabled={currentPage === totalPages - 1}
-            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors disabled:opacity-50"
+            className="p-2 rounded-full border border-gray-400 cursor-pointer group  transition-colors disabled:opacity-50"
           >
-            <ChevronRight className="w-5 h-5 text-gray-600" />
+            <ChevronRight className="w-5 h-5 text-gray-300  group-hover:text-white" />
           </button>
         </div>
       </div>
@@ -264,6 +288,10 @@ export default function ContributionGraph() {
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-sm bg-blue-500" />
             <span className="text-sm text-gray-400">Today</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-green-500" />
+            <span className="text-sm text-gray-400">Today + StreakDay</span>
           </div>
         </div>
         <div className="text-lg font-bold text-white">Current Streak: {maxStreak} days</div>
