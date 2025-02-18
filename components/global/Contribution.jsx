@@ -67,42 +67,49 @@ export default function ContributionGraph() {
   const [error, setError] = useState(false)
   const [refresh, setRefresh] = useState(false)
 
-  const generateContributionData = (currentStreak, started_at) => {
-    const endDate = new Date()
-    const startDate = new Date(started_at)
-    setStartStreakDate(startDate)
-    setEndStreakDate(endDate)
-
-    const days = eachDayOfInterval({ start: startDate, end: endDate })
+  const generateContributionData = (currentStreak, started_at, updated_at) => {
+    const today = new Date();
+    const updatedDate = new Date(updated_at);
+    const startDate = new Date(started_at);
+  
+    setStartStreakDate(startDate);
+    setEndStreakDate(today);
+  
+    const days = eachDayOfInterval({ start: startDate, end: today });
     const contributionsData = days.map((date) => {
-      const formattedDate = format(date, "yyyy-MM-dd")
+      const formattedDate = format(date, "yyyy-MM-dd");
       const milestone = milestones.find(
         (m) => format(new Date(m.achieved_at), "yyyy-MM-dd") === formattedDate
-      )
-      const dayDiff = Math.floor((endDate - date) / (1000 * 60 * 60 * 24))
-      const isToday = format(date, "yyyy-MM-dd") === format(endDate, "yyyy-MM-dd")
+      );
+      const dayDiff = Math.floor((updatedDate - date) / (1000 * 60 * 60 * 24));
+      
+      const isStreakDay = date <= updatedDate && dayDiff < currentStreak;
+      
+      const isToday = format(date, "yyyy-MM-dd") === format(today, "yyyy-MM-dd");
+      
       return {
         date: formattedDate,
-        isStreakDay: dayDiff < currentStreak,
-        streakCount: dayDiff < currentStreak ? currentStreak - dayDiff : 0,
+        isStreakDay,
+        streakCount: isStreakDay ? currentStreak - dayDiff : 0,
         milestone: milestone?.milestone_type
           ? `${milestone.days_reached} Days ${milestone.milestone_type.replace('_', ' ')}`
           : null,
-        isToday
+        isToday,
       }
-    })
-    setContributions(contributionsData)
-
-    const daysPerPage = 7 * 5
-    const calculatedTotalPages = Math.ceil(contributionsData.length / daysPerPage)
+    });
+    
+    setContributions(contributionsData);
+  
+    const daysPerPage = 7 * 5;
+    const calculatedTotalPages = Math.ceil(contributionsData.length / daysPerPage);
     setTotalPages(calculatedTotalPages)
   }
 
   const getContributionColor = (isStreakDay, hasMilestone, isToday) => {
     if (hasMilestone) return "bg-yellow-500 ring-2 ring-yellow-400/50"
-    if (isToday && isStreakDay) return 'bg-gradient-to-r from-blue-500 to-green-500';
-    if (isToday ) return "bg-blue-500"
-    if (isStreakDay) return "bg-green-500"
+    else if (isToday && isStreakDay) return 'bg-gradient-to-r from-blue-500 to-green-500';
+    else if (isToday && ! isStreakDay) return "bg-blue-500"
+    else if (isStreakDay) return "bg-green-500"
     return "bg-gray-800" 
   }
 
@@ -165,7 +172,7 @@ export default function ContributionGraph() {
         setMaxStreak(streakData.currentStreak)
         setGoalDays(streakData.goal_days || 90)
         console.log(streakData, ' the streak data')
-        generateContributionData(streakData.currentStreak, streakData.started_at)
+        generateContributionData(streakData.currentStreak, streakData.started_at, streakData?.updated_at)
       }
 
       if (milestonesData.success) {
@@ -197,104 +204,108 @@ export default function ContributionGraph() {
   }
 
   return (
-    <div className="w-full mt-10 max-w-xl md:max-w-3xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
-      
-      <div className="flex  items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Streak Calendar</h2>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-gray-400">Goal: {goalDays} days</div>
-          <div className="text-sm text-gray-400">Progress: {Math.round((maxStreak / goalDays) * 100)}%</div>
+    <div className="space-y-6 p-6">
+
+      <div className="w-full mt-10 max-w-xl md:max-w-6xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
+        
+        <div className="flex  items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white">Streak Calendar</h2>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-400">Goal: {goalDays} days</div>
+            <div className="text-sm text-gray-400">Progress: {Math.round((maxStreak / goalDays) * 100)}%</div>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-between items-center mb-4">
-        <div className="text-lg font-semibold text-gray-700">
-          {startStreakDate && endStreakDate && (
-            <>
-              {format(new Date(startStreakDate), "MMMM d, yyyy")} -{" "}
-              {format(new Date(endStreakDate), "MMMM d, yyyy")}
-            </>
-          )}
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-lg font-semibold text-gray-700">
+            {startStreakDate && endStreakDate && (
+              <>
+                {format(new Date(startStreakDate), "MMMM d, yyyy")} -{" "}
+                {format(new Date(endStreakDate), "MMMM d, yyyy")}
+              </>
+            )}
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 0}
+              className="p-2 rounded-full border border-gray-400 cursor-pointer group transition-colors disabled:opacity-50"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-300 group-hover:text-white" />
+            </button>
+            <span className="text-gray-600">
+              Page {currentPage + 1} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages - 1}
+              className="p-2 rounded-full border border-gray-400 cursor-pointer group  transition-colors disabled:opacity-50"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-300  group-hover:text-white" />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 0}
-            className="p-2 rounded-full border border-gray-400 cursor-pointer group transition-colors disabled:opacity-50"
-          >
-            <ChevronLeft className="w-5 h-5 text-gray-300 group-hover:text-white" />
-          </button>
-          <span className="text-gray-600">
-            Page {currentPage + 1} of {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages - 1}
-            className="p-2 rounded-full border border-gray-400 cursor-pointer group  transition-colors disabled:opacity-50"
-          >
-            <ChevronRight className="w-5 h-5 text-gray-300  group-hover:text-white" />
-          </button>
-        </div>
-      </div>
-      <div className="bg-gray-800/50 rounded-lg p-4">
-        <div className="grid grid-cols-7 gap-2">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-            <div key={day} className="text-center text-sm font-medium text-gray-400">
-              {day}
-            </div>
-          ))}
-          {weeks.map((week, weekIndex) =>
-            week.map((day, dayIndex) => (
-              <div key={`${weekIndex}-${dayIndex}`} className="flex justify-center">
-                {day ? (
-                  <Tooltip
-                    date={day.date}
-                    isStreakDay={day.isStreakDay}
-                    streakCount={day.streakCount}
-                    milestone={day.milestone}
-                  >
-                    <motion.div
-                      className={`w-8 h-8 rounded-md ${getContributionColor(
-                        day.isStreakDay,
-                        day.milestone,
-                        day.isToday
-                      )}`}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{
-                        duration: 0.3,
-                        delay: (weekIndex * 7 + dayIndex) * 0.02,
-                      }}
-                      whileHover={{ scale: 1.2 }}
-                    />
-                  </Tooltip>
-                ) : (
-                  <div className="w-8 h-8" /> // Empty cell for alignment
-                )}
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="grid grid-cols-7 gap-2">
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+              <div key={day} className="text-center text-sm font-medium text-gray-400">
+                {day}
               </div>
-            ))
-          )}
+            ))}
+            {weeks.map((week, weekIndex) =>
+              week.map((day, dayIndex) => (
+                <div key={`${weekIndex}-${dayIndex}`} className="flex justify-center">
+                  {day ? (
+                    <Tooltip
+                      date={day.date}
+                      isStreakDay={day.isStreakDay}
+                      streakCount={day.streakCount}
+                      milestone={day.milestone}
+                    >
+                      <motion.div
+                        className={`w-8 h-8 rounded-full ${getContributionColor(
+                          day.isStreakDay,
+                          day.milestone,
+                          day.isToday,
+                          day.isToday && day.isStreakDay,
+                        )}`}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{
+                          duration: 0.1,
+                          delay: (weekIndex * 7 + dayIndex) * 0.02,
+                        }}
+                        whileHover={{ scale: 1.2 }}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <div className="w-8 h-8" /> // Empty cell for alignment
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
-      <div className="mt-6 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-green-500" />
-            <span className="text-sm text-gray-400">Streak Day</span>
+        <div className="mt-6 flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-green-500" />
+              <span className="text-sm text-gray-400">Streak Day</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-yellow-500 ring-2 ring-yellow-400/50" />
+              <span className="text-sm text-gray-400">Milestone</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-sm bg-blue-500" />
+              <span className="text-sm text-gray-400">Today</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-green-500" />
+              <span className="text-sm text-gray-400">Today + StreakDay</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-yellow-500 ring-2 ring-yellow-400/50" />
-            <span className="text-sm text-gray-400">Milestone</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-sm bg-blue-500" />
-            <span className="text-sm text-gray-400">Today</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-green-500" />
-            <span className="text-sm text-gray-400">Today + StreakDay</span>
-          </div>
+          <div className="text-lg font-bold text-white">Current Streak: {maxStreak} days</div>
         </div>
-        <div className="text-lg font-bold text-white">Current Streak: {maxStreak} days</div>
       </div>
     </div>
   )

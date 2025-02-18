@@ -118,7 +118,7 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
                         name="goal"
                         value={goal}
                         onChange={(e) => setGoal(e.target.value)}
-                        className="w-full bg-gray-300 text-black border border-gray-700 rounded-lg p-3 transition-all outline-none"
+                        className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                         required
                         disabled={pending}
                         placeholder="Enter your goal"
@@ -134,7 +134,7 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
                         name="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="w-full bg-gray-300 text-black border border-gray-700 rounded-lg p-3  transition-all outline-none resize-none"
+                        className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                         required
                         rows={6}
                         disabled={pending}
@@ -144,7 +144,7 @@ export function UpdateGoalsCard({ id, goal: initialGoal, description: initialDes
 
                 <button
                     type="submit"
-                    className={`w-full bg-white text-black font-medium p-3 rounded-lg transition-all flex items-center justify-center space-x-2 ${pending ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`w-full px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors ${pending ? "opacity-50 cursor-not-allowed" : ""}`}
                     disabled={pending}
                 >
                     {pending ? (

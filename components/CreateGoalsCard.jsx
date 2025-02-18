@@ -3,19 +3,24 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import Toast from "./global/Toast";
 
 // TODO: toast messages for every component starting from goals
 export function CreateGoalsCard( { setRefreshGoalsList } ) {
     const [goal, setGoal] = useState("");
     const [description, setDescription] = useState("");
-    const [success, setSuccess] = useState(false);
-    const [errors, setErrors] = useState(null);
     const [pending, setPending] = useState(false);
-
+    
+    const [notification, setNotification] = useState({
+        show: false,
+        message: "",
+        type: "info",
+        position: "bottom-right",
+    });
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
         setPending(true);
-        setErrors(null);
 
         if ( ! String(goal).length) return setErrors("Goal can't be empty")
         else if (! String(goal).length) return setErrors("Description can't be empty")
@@ -30,19 +35,32 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
             });
 
             if (response.ok) {
-                setSuccess(true);
                 setGoal("");
                 setDescription("");
 
-                setTimeout ( () => {
-                    setSuccess(null)
-                }, 2000)
+                setNotification({
+                    show: true,
+                    message: "Goal was created",
+                    type: "success",
+                    position: "top-center",
+                });
             } else {
                 const errorData = await response.json();
-                setErrors(errorData.message || "Failed to save goal");
+                setNotification({
+                    show: true,
+                    message: errorData?.message || "Failed to create goal!",
+                    type: "error",
+                    position: "top-center",
+                });
             }
         } catch (error) {
-            setErrors(error.message || "Failed to save goal");
+            
+            setNotification({
+                show: true,
+                message: "Failed to update goal",
+                type: "error",
+                position: "top-center",
+            });
         } finally {
             setPending(false);
             setRefreshGoalsList( prev => ! prev)
@@ -51,50 +69,17 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
 
     return (
         <motion.div
-            className="w-full max-w-md  p-6 rounded-xl shadow-lg flex flex-col items-start space-y-4"
+            className="w-full relative max-w-md  p-6 rounded-xl shadow-lg flex flex-col items-start space-y-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.5 }}
         >
-            <AnimatePresence>
-                {success && (
-                    <motion.div
-                        className="bg-green-400 text-white p-4 rounded-lg w-full flex justify-between items-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        Goal created successfully!
-                        <X
-                            className="cursor-pointer"
-                            onClick={() => setSuccess(false)}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            <AnimatePresence>
-                {errors && (
-                    <motion.div
-                        className="bg-red-400 text-white p-4 rounded-lg w-full flex justify-between items-center"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        {errors}
-                        <X
-                            className="cursor-pointer"
-                            onClick={() => setErrors(null)}
-                        />
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            
             <form onSubmit={handleSubmit} className="w-full">
                 <div className="form-control mb-4">
                     <label className="label" htmlFor="goal">
-                        <span className="label-text text-gray-300">Goal</span>
+                        <span className="label-text text-gray-400">Goal</span>
                     </label>
                     <input
                         type="text"
@@ -102,21 +87,21 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
                         name="goal"
                         value={goal}
                         onChange={(e) => setGoal(e.target.value)}
-                        className="input input-bordered bg-gray-300 text-white w-full"
+                        className="w-full p-3 rounded-lg bg-black/20 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                         required
                         disabled={pending}
                     />
                 </div>
                 <div className="form-control mb-4">
                     <label className="label" htmlFor="description">
-                        <span className="label-text text-gray-300">Description</span>
+                        <span className="label-text text-gray-400">Description</span>
                     </label>
                     <textarea
                         id="description"
                         name="description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        className="textarea textarea-bordered bg-gray-300 text-white w-full"
+                        className="w-full p-3 rounded-lg bg-black/20 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                         required
                         rows={8}
                         disabled={pending}
@@ -125,7 +110,7 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
                 <div className="form-control mt-6">
                     <button
                         type="submit"
-                        className={`bg-white text-black p-3 rounded-md flex items-center justify-center font-normal w-full ${pending ? "opacity-50 cursor-not-allowed" : ""}`}
+                        className={`w-full px-6 py-3 bg-blue-600 text-white rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors${pending ? "opacity-50 cursor-not-allowed" : ""}`}
                         disabled={pending}
                     >
                         {pending ? (
@@ -143,6 +128,13 @@ export function CreateGoalsCard( { setRefreshGoalsList } ) {
                     </button>
                 </div>
             </form>
+            <Toast
+                show={notification.show}
+                message={notification.message}
+                type={notification.type}
+                position={notification.position}
+                onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+            />
         </motion.div>
     );
 }
