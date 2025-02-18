@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
 import { Trophy, Award } from "lucide-react";
+import { LightningEffect } from "./LightningEffect";
 
 // TODO: add a dulingo animation like when updating the streak
 export default function ShowStreakDaysOnly() {
@@ -19,6 +20,7 @@ export default function ShowStreakDaysOnly() {
     const [animationKey, setAnimationKey] = useState(0);
     const [userRelapsed, setUserRelapsed] = useState(false);
     const [updating, setUpdating] = useState(false)
+    const [showLightning, setShowLightning] = useState(false)
 
     const [notification, setNotification] = useState({
         show: false,
@@ -96,13 +98,16 @@ export default function ShowStreakDaysOnly() {
     const digits = String(streak).padStart(4, "0").split("");
 
     const handleUpdateStreak = async () => {
+        
         setUpdating(true)
+        
         setNotification({
             show: false,
             message: "",
             type: "info",
             position: "top-center",
         });
+        
         try {
             const response = await fetch("/api/update_streak", {
                 method: "POST",
@@ -118,6 +123,12 @@ export default function ShowStreakDaysOnly() {
                     position: "top-center",
                 });
                 
+                if (data?.LightningEffect) {
+                    setShowLightning(true);
+                    
+                    setTimeout(() => setShowLightning(false), 1500); // Increased to 1500ms to match the new animation duration
+                }
+                
                 setTimeout(() => {
                     setNotification({
                         show: false,
@@ -125,7 +136,7 @@ export default function ShowStreakDaysOnly() {
                         type: "info",
                         position: "top-center",
                     });
-                }, 3000);
+                }, 5000);
                 
                 setStreak(data.currentStreak);
                 setLongestStreak(data.longestStreak);
@@ -168,6 +179,7 @@ export default function ShowStreakDaysOnly() {
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden px-4">
             
+            { showLightning && <LightningEffect /> }
 
             <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
                 <AnimatePresence>

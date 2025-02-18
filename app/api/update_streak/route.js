@@ -32,6 +32,8 @@ export async function POST(req) {
         const currentDate = new Date().toISOString().split('T')[0];
         const lastUpdated = user.updated_at;
 
+        let LightningEffect = true
+
         if (user.currentStreak === 0) {
             await db.run(
                 `UPDATE streak_logs 
@@ -70,6 +72,7 @@ export async function POST(req) {
                     longestStreak: 1,
                     totalCleanDays: 1,
                     relapse: false,
+                    LightningEffect
                 },
                 { status: 200 }
             );
@@ -184,6 +187,7 @@ export async function POST(req) {
                 longestStreak: newLongestStreak,
                 totalCleanDays: newTotalCleanDays,
                 relapse: isStreakReset,
+                LightningEffect
             },
             { status: 200 }
         );
