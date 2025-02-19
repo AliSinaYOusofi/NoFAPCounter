@@ -1,7 +1,7 @@
 import React from "react";
 import { Lightbulb } from "lucide-react";
 import TipsCard from "./TipsCard";
-
+import { motion } from "framer-motion";
 const noFapTips = [
     {
         title: "Avoid triggers",
@@ -120,12 +120,18 @@ export default function Tips() {
         <div className="w-full h-full bg-gradient-to-r from-black via-gray-900 to-black text-white p-4 flex flex-col items-center text-center">
             <div className="mt-4 space-y-2 text-gray-300 flex flex-wrap gap-10 items-center justify-center">
                 {noFapTips.map((tip, index) => (
-                    <TipsCard
+                    <motion.div
                         key={index}
-                        title={tip.title}
-                        description={tip.description}
-                        number={index + 1}
-                    />
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.2 }}
+                    >
+                        <TipsCard
+                            title={tip.title}
+                            description={tip.description}
+                            number={index + 1}
+                        />
+                    </motion.div>
                 ))}
             </div>
         </div>
