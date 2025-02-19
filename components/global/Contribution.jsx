@@ -5,6 +5,7 @@ import { format, eachDayOfInterval, subDays } from "date-fns"
 import { motion } from "framer-motion"
 import { Calendar, GitCommit, ChevronRight, ChevronLeft, Flame, Target } from "lucide-react"
 import RetryButton from "./RetryButton"
+import  {WeeklyGoalCompletedAnimation}   from "../streak completed anims/WeeklayCompletedAnime"
 
 const Tooltip = ({ date, isStreakDay, streakCount, milestone, children }) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -66,6 +67,7 @@ export default function ContributionGraph() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [refresh, setRefresh] = useState(false)
+  const [gaolCompletedAnimation, setGoalCompltedAnimation] = useState(false)
 
   const generateContributionData = (currentStreak, started_at, updated_at) => {
     const today = new Date();
@@ -171,7 +173,6 @@ export default function ContributionGraph() {
       if (streakData.success) {
         setMaxStreak(streakData.currentStreak)
         setGoalDays(streakData.goal_days || 90)
-        console.log(streakData, ' the streak data')
         generateContributionData(streakData.currentStreak, streakData.started_at, streakData?.updated_at)
       }
 
@@ -205,7 +206,7 @@ export default function ContributionGraph() {
 
   return (
     <div className="space-y-6 p-6">
-
+      <WeeklyGoalCompletedAnimation daysCompleted={maxStreak}/> 
       <div className="w-full mt-10 max-w-xl md:max-w-6xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
         
         <div className="flex  items-center justify-between mb-6">
@@ -278,7 +279,7 @@ export default function ContributionGraph() {
                       />
                     </Tooltip>
                   ) : (
-                    <div className="w-8 h-8" /> // Empty cell for alignment
+                    <div className="w-8 h-8" />
                   )}
                 </div>
               ))
@@ -286,7 +287,7 @@ export default function ContributionGraph() {
           </div>
         </div>
         <div className="mt-6 flex justify-between items-center">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap md:flex-row flex-col">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-sm bg-green-500" />
               <span className="text-sm text-gray-400">Streak Day</span>
@@ -304,7 +305,7 @@ export default function ContributionGraph() {
               <span className="text-sm text-gray-400">Today + StreakDay</span>
             </div>
           </div>
-          <div className="text-lg font-bold text-white">Current Streak: {maxStreak} days</div>
+          <div className="md:text-lg text-sm font-bold text-white">Current Streak: {maxStreak} days</div>
         </div>
       </div>
     </div>
