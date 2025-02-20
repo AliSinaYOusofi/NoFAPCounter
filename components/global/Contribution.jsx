@@ -5,7 +5,7 @@ import { format, eachDayOfInterval, subDays } from "date-fns"
 import { motion } from "framer-motion"
 import { Calendar, GitCommit, ChevronRight, ChevronLeft, Flame, Target } from "lucide-react"
 import RetryButton from "./RetryButton"
-import  {WeeklyGoalCompletedAnimation}   from "../streak completed anims/WeeklayCompletedAnime"
+import  { AchievementAndStreakUpdate}   from "../streak completed anims/WeeklayCompletedAnime"
 
 const Tooltip = ({ date, isStreakDay, streakCount, milestone, children }) => {
   const [isVisible, setIsVisible] = useState(false)
@@ -67,7 +67,6 @@ export default function ContributionGraph() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(false)
   const [refresh, setRefresh] = useState(false)
-  const [gaolCompletedAnimation, setGoalCompltedAnimation] = useState(false)
 
   const generateContributionData = (currentStreak, started_at, updated_at) => {
     const today = new Date();
@@ -153,10 +152,6 @@ export default function ContributionGraph() {
     setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [refresh])
-
   const fetchData = async () => {
     setLoading(true)
     try {
@@ -187,6 +182,10 @@ export default function ContributionGraph() {
     }
   }
 
+  useEffect(() => {
+    fetchData()
+  }, [refresh])
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center"> 
@@ -206,7 +205,10 @@ export default function ContributionGraph() {
 
   return (
     <div className="space-y-6 p-6">
-      <WeeklyGoalCompletedAnimation daysCompleted={maxStreak}/> 
+      {[7, 30, 365].includes(maxStreak) || maxStreak > 30 ? (
+        <AchievementAndStreakUpdate daysCompleted={maxStreak} onRefresh={setRefresh}/>
+      ) : null}
+ 
       <div className="w-full mt-10 max-w-xl md:max-w-6xl mx-auto bg-gray-900/50 backdrop-blur-sm rounded-xl border border-gray-800 p-8">
         
         <div className="flex  items-center justify-between mb-6">
