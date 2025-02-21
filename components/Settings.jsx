@@ -2,7 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Save, User, Target, MessageSquare, AlertCircle, Clock, AlertTriangle, Trash2, X } from "lucide-react";
+import {
+    Save,
+    User,
+    Target,
+    MessageSquare,
+    AlertCircle,
+    Clock,
+    AlertTriangle,
+    Trash2,
+    X,
+} from "lucide-react";
 import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
 
@@ -12,7 +22,7 @@ export default function Settings() {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState(null);
     const [refresh, setRefresh] = useState(false);
-    const [deleting, setDeleting] = useState(false)
+    const [deleting, setDeleting] = useState(false);
 
     const [notification, setNotification] = useState({
         show: false,
@@ -73,9 +83,8 @@ export default function Settings() {
             });
 
             setTimeout(() => {
-                setNotification(prev => ({ ...prev, show: false }));
+                setNotification((prev) => ({ ...prev, show: false }));
             }, 3000);
-
         } catch (error) {
             setError("Failed to update settings");
         } finally {
@@ -117,26 +126,26 @@ export default function Settings() {
                             <h3 className="text-xl font-bold text-red-400 flex items-center gap-2">
                                 <AlertTriangle size={24} />
                                 Delete Account
-                                
                             </h3>
-                            <button 
+                            <button
                                 onClick={() => setShowDeleteModal(false)}
                                 className="text-gray-400 hover:text-gray-300 transition-colors"
                             >
                                 <X size={24} />
                             </button>
                         </div>
-                        
+
                         <div className="space-y-4">
                             <p className="text-gray-300">
-                                Are you sure you want to delete your account? This action cannot be undone and you will lose:
+                                Are you sure you want to delete your account?
+                                This action cannot be undone and you will lose:
                             </p>
                             <ul className="list-disc list-inside text-gray-400 space-y-2">
                                 <li>All your streak history</li>
                                 <li>Your goals and progress</li>
                                 <li>Your milestones and achievements</li>
                             </ul>
-                            
+
                             <div className="flex items-center justify-end gap-4 mt-8">
                                 <motion.button
                                     onClick={() => setShowDeleteModal(false)}
@@ -181,10 +190,8 @@ export default function Settings() {
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden p-6">
-            
-
             <div className="relative z-10 w-full max-w-2xl mx-auto">
-                <motion.h1 
+                <motion.h1
                     className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 mb-8"
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -194,7 +201,7 @@ export default function Settings() {
 
                 <div className="space-y-6">
                     {/* Account Settings Section */}
-                    <motion.form 
+                    <motion.form
                         onSubmit={handleSubmit}
                         className="space-y-6"
                         initial={{ opacity: 0, y: 20 }}
@@ -213,7 +220,12 @@ export default function Settings() {
                                     <input
                                         type="text"
                                         value={formData.username}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                username: e.target.value,
+                                            }))
+                                        }
                                         className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                                     />
                                 </div>
@@ -233,14 +245,53 @@ export default function Settings() {
                                     </label>
                                     <select
                                         value={formData.goal_days}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, goal_days: e.target.value }))}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                goal_days: e.target.value,
+                                            }))
+                                        }
                                         className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                                     >
-                                        <option value="7">7 days</option>
-                                        <option value="30">30 days</option>
-                                        <option value="90">90 days</option>
-                                        <option value="180">180 days</option>
-                                        <option value="365">365 days</option>
+                                        <option value="1">1 day (Trial)</option>
+                                        <option value="2">
+                                            2 days (Getting Started)
+                                        </option>
+                                        <option value="3">
+                                            3 days (Starter)
+                                        </option>
+                                        <option value="5">
+                                            5 days (Small Step)
+                                        </option>
+                                        <option value="7">
+                                            7 days (A Week)
+                                        </option>
+                                        <option value="10">10 days</option>
+                                        <option value="14">
+                                            14 days (Two Weeks)
+                                        </option>
+                                        <option value="21">
+                                            21 days (Challenge)
+                                        </option>
+                                        <option value="30">
+                                            30 days (1 Month)
+                                        </option>
+                                        <option value="45">45 days</option>
+                                        <option value="60">
+                                            60 days (2 Months)
+                                        </option>
+                                        <option value="90">
+                                            90 days (Recommended)
+                                        </option>
+                                        <option value="120">
+                                            120 days (4 Months)
+                                        </option>
+                                        <option value="180">
+                                            180 days (6 Months)
+                                        </option>
+                                        <option value="365">
+                                            365 days (1 Year)
+                                        </option>
                                     </select>
                                 </div>
 
@@ -251,7 +302,13 @@ export default function Settings() {
                                     </label>
                                     <textarea
                                         value={formData.motivationalMessage}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, motivationalMessage: e.target.value }))}
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                motivationalMessage:
+                                                    e.target.value,
+                                            }))
+                                        }
                                         className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors h-32 resize-none"
                                         placeholder="Write something to keep yourself motivated..."
                                     />
@@ -279,7 +336,7 @@ export default function Settings() {
                     </motion.form>
 
                     {/* Danger Zone */}
-                    <motion.div 
+                    <motion.div
                         className="backdrop-blur-md bg-black/40 p-6 rounded-xl border border-red-900/50"
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -290,7 +347,8 @@ export default function Settings() {
                         </h2>
                         <div className="space-y-4">
                             <p className="text-gray-400">
-                                Once you delete your account, there is no going back. Please be certain.
+                                Once you delete your account, there is no going
+                                back. Please be certain.
                             </p>
                             <motion.button
                                 onClick={() => setShowDeleteModal(true)}
@@ -307,14 +365,16 @@ export default function Settings() {
             </div>
 
             <DeleteConfirmationModal />
-            
+
             <Toast
                 show={notification.show}
                 message={notification.message}
                 type={notification.type}
                 position={notification.position}
-                onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+                onClose={() =>
+                    setNotification((prev) => ({ ...prev, show: false }))
+                }
             />
         </div>
     );
-} 
+}
