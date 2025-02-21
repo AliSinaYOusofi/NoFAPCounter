@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Home,
@@ -69,6 +69,20 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
   ]
   const [loggingOut, setLoggingout] = useState(false)
 
+  useEffect(() => {
+    // Load the active component from localStorage when the component mounts
+    const savedActiveComponent = localStorage.getItem("activeComponent")
+    if (savedActiveComponent) {
+      setActiveComponent(savedActiveComponent)
+    }
+  }, [setActiveComponent])
+
+  const handleItemClick = (component) => {
+    onItemClick(component)
+    // Save the active component to localStorage when it changes
+    localStorage.setItem("activeComponent", component)
+  }
+
   return (
     <motion.div
       className="fixed top-0 left-0 h-full w-64 z-[99] bg-gradient-to-b from-black via-gray-900 to-black"
@@ -99,7 +113,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
                   backgroundColor: "rgba(59, 130, 246, 0.1)",
                   transition: { duration: 0.2 },
                 }}
-                onClick={() => onItemClick(item.component)}
+                onClick={() => handleItemClick(item.component)}
               >
                 {React.cloneElement(item.icon, {
                   className: `w-5 h-5 mr-3 ${activeComponent === item.component ? "text-blue-400" : ""}`,
@@ -129,3 +143,4 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
     </motion.div>
   )
 }
+

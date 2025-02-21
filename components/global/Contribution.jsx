@@ -107,8 +107,8 @@ export default function ContributionGraph() {
   }
 
   const getContributionColor = (isStreakDay, hasMilestone, isToday) => {
-    if (hasMilestone) return "bg-yellow-500 ring-2 ring-yellow-400/50"
-    else if (isToday && isStreakDay) return 'bg-gradient-to-r from-blue-500 to-green-500';
+    // if (hasMilestone) return "bg-yellow-500 ring-2 ring-yellow-400/50"
+    if (isToday && isStreakDay) return 'bg-gradient-to-r from-blue-500 to-green-500';
     else if (isToday && ! isStreakDay) return "bg-blue-500"
     else if (isStreakDay) return "bg-green-500"
     return "bg-gray-800" 
@@ -205,7 +205,7 @@ export default function ContributionGraph() {
 
   return (
     <div className="space-y-6 p-6">
-      {[7, 30, 365].includes(maxStreak) || maxStreak > 30 ? (
+      {[7, 30, 365].includes(maxStreak) ? (
         <AchievementAndStreakUpdate daysCompleted={maxStreak} onRefresh={setRefresh}/>
       ) : null}
  
@@ -267,7 +267,7 @@ export default function ContributionGraph() {
                       <motion.div
                         className={`w-8 h-8 rounded-full ${getContributionColor(
                           day.isStreakDay,
-                          day.milestone,
+                          // parseInt(day.milestone) === parseInt(goalDays),
                           day.isToday,
                           day.isToday && day.isStreakDay,
                         )}`}
@@ -294,10 +294,10 @@ export default function ContributionGraph() {
               <div className="w-3 h-3 rounded-sm bg-green-500" />
               <span className="text-sm text-gray-400">Streak Day</span>
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-sm bg-yellow-500 ring-2 ring-yellow-400/50" />
               <span className="text-sm text-gray-400">Milestone</span>
-            </div>
+            </div> */}
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-sm bg-blue-500" />
               <span className="text-sm text-gray-400">Today</span>
