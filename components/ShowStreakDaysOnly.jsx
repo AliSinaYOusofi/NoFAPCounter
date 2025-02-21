@@ -6,6 +6,7 @@ import Toast from "./global/Toast";
 import RetryButton from "./global/RetryButton";
 import { Trophy, Award } from "lucide-react";
 import { LightningEffect } from "./LightningEffect";
+import { AchievementAndStreakUpdate } from "./streak completed anims/WeeklayCompletedAnime";
 
 // TODO: add a dulingo animation like when updating the streak
 export default function ShowStreakDaysOnly() {
@@ -21,6 +22,7 @@ export default function ShowStreakDaysOnly() {
     const [userRelapsed, setUserRelapsed] = useState(false);
     const [updating, setUpdating] = useState(false)
     const [showLightning, setShowLightning] = useState(false)
+    const [showGoalAcheivedCard, setShowGoalAcheivedCard] = useState(false)
 
     const [notification, setNotification] = useState({
         show: false,
@@ -107,7 +109,8 @@ export default function ShowStreakDaysOnly() {
             type: "info",
             position: "top-center",
         });
-        
+        const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
         try {
             const response = await fetch("/api/update_streak", {
                 method: "POST",
@@ -116,18 +119,21 @@ export default function ShowStreakDaysOnly() {
             const data = await response.json();
 
             if (response.ok) {
+                setLoading(false)
+                if (data?.LightningEffect) {
+                    setShowLightning(true);
+                    
+                    setTimeout(() => setShowLightning(false), 1000);
+                }
+
+                await sleep(2000)
+                
                 setNotification({
                     show: true,
                     message: data.message,
                     type: "info",
                     position: "top-center",
                 });
-                
-                if (data?.LightningEffect) {
-                    setShowLightning(true);
-                    
-                    setTimeout(() => setShowLightning(false), 1500); // Increased to 1500ms to match the new animation duration
-                }
                 
                 setTimeout(() => {
                     setNotification({
@@ -143,6 +149,7 @@ export default function ShowStreakDaysOnly() {
                 setTotalCleanDays(data.totalCleanDays);
                 setUserRelapsed(data?.relapse);
                 
+                await sleep(1000)
                 if (data?.relapse) {
                     setRelapseNotification({
                         show: true,
@@ -151,6 +158,9 @@ export default function ShowStreakDaysOnly() {
                         position: "bottom-right",
                     });
                 }
+
+                await sleep(2000)
+                if (data?.showCard) setShowGoalAcheivedCard(true)
             }
         } catch (error) {
             setError("Failed to update streak");
@@ -280,6 +290,9 @@ export default function ShowStreakDaysOnly() {
                 position={relapseNotification.position}
                 onClose={() => setRelapseNotification((prev) => ({ ...prev, show: false }))}
             />
+            
+            { showGoalAcheivedCard && <AchievementAndStreakUpdate daysCompleted={streak}/>}
+      
         </div>
     );
 }

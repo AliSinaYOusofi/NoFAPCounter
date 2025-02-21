@@ -11,7 +11,6 @@ export default function Goals() {
     const [goals, setGoals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(null);
     const [refreshGoalsList, setRefreshGoalsList] = useState(false);
     const [sortOrder, setSortOrder] = useState("desc");
     const [refresh, setRefresh] = useState(false)

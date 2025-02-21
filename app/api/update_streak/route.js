@@ -32,6 +32,11 @@ export async function POST(req) {
         const currentDate = new Date().toISOString().split('T')[0];
         const lastUpdated = user.updated_at;
 
+        const nofapGoalDays = [1, 2, 3, 5, 7, 10, 14, 21, 30, 45, 60, 90, 120, 180, 365];
+
+        let show_goal_gained_card = false
+        
+
         let LightningEffect = true
 
         if (user.currentStreak === 0) {
@@ -72,7 +77,8 @@ export async function POST(req) {
                     longestStreak: 1,
                     totalCleanDays: 1,
                     relapse: false,
-                    LightningEffect
+                    LightningEffect,
+                    showCard: true
                 },
                 { status: 200 }
             );
@@ -131,16 +137,26 @@ export async function POST(req) {
             WHERE user_id = ? AND date = ?`,
             [status, newStreak, user.id, currentDate]
         );
+       
         const milestonesToCheck = [
+            { days: 1, milestone_type: 'daily' },
+            { days: 2, milestone_type: 'daily' },
+            { days: 3, milestone_type: 'daily' },
+            { days: 5, milestone_type: 'daily' },
             { days: 7, milestone_type: 'weekly' },
+            { days: 10, milestone_type: 'weekly' },
+            { days: 14, milestone_type: 'weekly' },
+            { days: 21, milestone_type: 'weekly' },
             { days: 30, milestone_type: 'monthly' },
+            { days: 45, milestone_type: 'monthly' },
             { days: 60, milestone_type: 'monthly' },
             { days: 90, milestone_type: 'monthly' },
             { days: 120, milestone_type: 'monthly' },
+            { days: 180, milestone_type: 'monthly' },
             { days: 365, milestone_type: 'yearly' }
-        ];
+        ]          
         
-        console.log(newStreak, ' new streak')
+        
         if (newStreak === user.goal_days) {
             await db.run(
                 `INSERT INTO milestones (
@@ -177,8 +193,10 @@ export async function POST(req) {
             [user.id, newStreak, currentDate, 'personal_best']
             );
         }
+        if (nofapGoalDays.includes(newStreak)) show_goal_gained_card = true
         
         db.close();
+
         return NextResponse.json(
             { 
                 success: true, 
@@ -187,7 +205,8 @@ export async function POST(req) {
                 longestStreak: newLongestStreak,
                 totalCleanDays: newTotalCleanDays,
                 relapse: isStreakReset,
-                LightningEffect
+                LightningEffect,
+                showCard: show_goal_gained_card
             },
             { status: 200 }
         );

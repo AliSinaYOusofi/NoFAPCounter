@@ -209,11 +209,22 @@ export function NofapForm({ className }) {
                 disabled={state.pending}
                 defaultValue="90"
               >
-                <option value="7">7 days</option>
-                <option value="30">30 days</option>
+                <option value="1">1 day (Trial)</option>
+                <option value="2">2 days (Getting Started)</option>
+                <option value="3">3 days (Starter)</option>
+                <option value="5">5 days (Small Step)</option>
+                <option value="7">7 days (A Week)</option>
+                <option value="10">10 days</option>
+                <option value="14">14 days (Two Weeks)</option>
+                <option value="21">21 days (21-Day Challenge)</option>
+                <option value="30">30 days (1 Month)</option>
+                <option value="45">45 days</option>
+                <option value="60">60 days (2 Months)</option>
                 <option value="90">90 days (Recommended)</option>
-                <option value="180">180 days</option>
-                <option value="365">365 days</option>
+                <option value="120">120 days (4 Months)</option>
+                <option value="180">180 days (6 Months)</option>
+                <option value="365">365 days (1 Year)</option>
+
               </select>
             </div>
 

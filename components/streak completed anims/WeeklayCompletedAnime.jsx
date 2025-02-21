@@ -166,10 +166,26 @@ export const AchievementAndStreakUpdate = ({ goalName, daysCompleted, onRefresh 
       setNewGoal("")
       setError("")
       setUpdating(false)
-      // onRefresh(prev => ! prev)
     }
   }
 
+  const goalOptions = [
+    { value: 1, label: "1 day (Trial)" },
+    { value: 2, label: "2 days (Getting Started)" },
+    { value: 3, label: "3 days (Starter)" },
+    { value: 5, label: "5 days (Small Step)" },
+    { value: 7, label: "7 days (A Week)" },
+    { value: 10, label: "10 days" },
+    { value: 14, label: "14 days (Two Weeks)" },
+    { value: 21, label: "21 days (Challenge)" },
+    { value: 30, label: "30 days (1 Month)" },
+    { value: 45, label: "45 days" },
+    { value: 60, label: "60 days (2 Months)" },
+    { value: 90, label: "90 days (Recommended)" },
+    { value: 120, label: "120 days (4 Months)" },
+    { value: 180, label: "180 days (6 Months)" },
+    { value: 365, label: "365 days (1 Year)" },
+  ];
   return (
     <AnimatePresence>
       {(showAnimation || showStreakUpdate) && (
@@ -240,12 +256,20 @@ export const AchievementAndStreakUpdate = ({ goalName, daysCompleted, onRefresh 
                   className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                   onChange={(e) => setNewGoal(e.target.value)}
                   defaultValue={newGoal}
+                  
                 >
-                  {[7, 30, 90, 180, 365].map((days) => (
-                    <option key={days} value={days} disabled={daysCompleted >= days}>
-                      {days} days {days === 90 && "(Recommended)"}
-                    </option>
+                  {
+                    goalOptions.map((option) => (
+                      <option
+                        key={option.value}
+                        value={option.value}
+                        disabled={option.value === daysCompleted}
+                      >
+                        {option.label}
+                      </option>
                   ))}
+
+
                 </select>
                 {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
               </div>
