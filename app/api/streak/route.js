@@ -16,10 +16,10 @@ export async function POST(req) {
         decoded = jwt.verify(auth_token, secretKey);
     } catch (error) {
       console.log(error)
-        return NextResponse.json(
-            { success: false, message: "Invalid or expired token" },
-            { status: 401 }
-        );
+      return NextResponse.json(
+          { success: false, message: "Invalid or expired token" },
+          { status: 401 }
+      );
     }
     const user = await db.get(
       `SELECT 

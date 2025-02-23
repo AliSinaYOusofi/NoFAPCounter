@@ -261,7 +261,7 @@ export default function ContributionGraph() {
                       milestone={day.milestone}
                     >
                       <motion.div
-                        className={`w-8 h-8 rounded-full ${getContributionColor(
+                        className={`w-8 h-8 rounded-full mb-2 ${getContributionColor(
                           day.isStreakDay,
                           day.milestone,
                           day.isToday,
@@ -273,7 +273,7 @@ export default function ContributionGraph() {
                           duration: 0.1,
                           delay: (weekIndex * 7 + dayIndex) * 0.02,
                         }}
-                        whileHover={{ scale: 1.2 }}
+                        whileHover={{ scale: 0.9 }}
                       />
                     </Tooltip>
                   ) : (

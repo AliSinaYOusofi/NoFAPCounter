@@ -10,6 +10,8 @@ import Goals from "@/components/Goals";
 import ContributionGraph from "@/components/global/Contribution";
 import Settings from "./Settings";
 import ContributionWrapper from "./global/ContributionWrapper";
+import FeedbackComponent from "./Feedback";
+import Hamburger from "hamburger-react";
 
 export default function DashboardWrapper() {
     const [isOpen, setIsOpen] = useState(true);
@@ -23,9 +25,9 @@ export default function DashboardWrapper() {
         <div className="min-h-screen relative flex flex-col">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed z-[100] top-4 left-4 p-2   rounded-full text-white"
+                className="fixed z-[100] top-4 left-4 backdrop-blur-md border-2 border-white   rounded-full text-white"
             >
-                <Menu className="w-6 h-6 " />
+                <Hamburger size={24} toggled={isOpen} toggle={setIsOpen} />
             </button>
             <div className="flex flex-1 overflow-hidden">
                 {isOpen && (
@@ -54,6 +56,7 @@ export default function DashboardWrapper() {
                         <ContributionWrapper key="graph" />
                     )}
                     {activeComponent === 'settings' && <Settings />}
+                    {activeComponent === 'feedback' && <FeedbackComponent />}
                 </div>
             </div>
         </div>

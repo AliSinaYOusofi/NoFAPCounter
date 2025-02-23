@@ -11,7 +11,7 @@ export async function createMilestonesTable() {
           user_id TEXT NOT NULL,
           days_reached INTEGER NOT NULL,
           achieved_at DATE NOT NULL,
-          milestone_type TEXT CHECK(milestone_type IN ('personal_best', 'goal_reached', 'weekly', 'monthly')),
+          milestone_type TEXT NOT NULL,
           FOREIGN KEY (user_id) REFERENCES users(id)
         );
         `,

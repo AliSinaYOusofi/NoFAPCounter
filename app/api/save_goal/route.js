@@ -16,7 +16,6 @@ export async function POST(req) {
     
     try {
         decoded = jwt.verify(auth_token, secretKey);
-        console.log(decoded)
     } catch (error) {
         return NextResponse.json(
             { success: false, message: "Invalid or expired token" },
@@ -139,7 +138,6 @@ export async function GET(req) {
     let decoded;
     try {
         decoded = jwt.verify(auth_token, secretKey);
-        console.log(decoded)
     } catch (error) {
         return NextResponse.json(
             { success: false, message: "Invalid or expired token" },

@@ -96,7 +96,7 @@ export function QuoteShower() {
                 handleSave();
               }}
             >
-              <Heart fill={saved ? "red" : "none"} size={24} />
+              
             </button>
           </footer>
         </motion.blockquote>

@@ -10,6 +10,7 @@ import {
   LogOut,
   Zap,
   BarChartIcon as ChartNoAxesColumnIncreasing,
+  MessageCircle,
 } from "lucide-react"
 import handleLogout from "@/utils/handle_logout"
 
@@ -66,11 +67,12 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
     { name: "Tips", icon: <Lightbulb className="mr-2" />, component: "tips" },
     { name: "Settings", icon: <Settings className="mr-2" />, component: "settings" },
     { name: "Graph", icon: <ChartNoAxesColumnIncreasing className="mr-2" />, component: "graph" },
+    { name: "Feedback", icon: <MessageCircle className="mr-2" />, component: "feedback" },
+    
   ]
   const [loggingOut, setLoggingout] = useState(false)
 
   useEffect(() => {
-    // Load the active component from localStorage when the component mounts
     const savedActiveComponent = localStorage.getItem("activeComponent")
     if (savedActiveComponent) {
       setActiveComponent(savedActiveComponent)
@@ -79,7 +81,6 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
 
   const handleItemClick = (component) => {
     onItemClick(component)
-    // Save the active component to localStorage when it changes
     localStorage.setItem("activeComponent", component)
   }
 
@@ -94,7 +95,6 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
 
       <motion.div className="relative z-10 h-full flex flex-col p-4">
         <div className="mt-8 mb-12 text-center"></div>
-
         <motion.ul className="space-y-2 flex-grow">
           <AnimatePresence>
             {items.map((item, index) => (
@@ -108,11 +108,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
                       ? "bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.2)]"
                       : "text-gray-300 hover:text-blue-400"
                   }`}
-                whileHover={{
-                  scale: 1.02,
-                  backgroundColor: "rgba(59, 130, 246, 0.1)",
-                  transition: { duration: 0.2 },
-                }}
+                
                 onClick={() => handleItemClick(item.component)}
               >
                 {React.cloneElement(item.icon, {

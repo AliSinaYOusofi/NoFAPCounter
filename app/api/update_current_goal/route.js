@@ -34,7 +34,7 @@ export async function POST(request) {
                 { status: 404 }
             );
         }
-        console.log(currentStreak, goal, typeof goal, typeof currentStreak.goal_days)
+        
         if (Number(goal) === currentStreak.goal_days) {
             return NextResponse.json(
                 {

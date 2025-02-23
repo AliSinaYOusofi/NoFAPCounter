@@ -14,6 +14,10 @@ export function middleware(request) {
         return NextResponse.redirect(new URL("/forward", request.url));
     }
 
+    if (authToken && (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/forward")) {
+        return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+
     if (request.nextUrl.pathname.startsWith("/api") && !authToken) {
         return new NextResponse(
             JSON.stringify({

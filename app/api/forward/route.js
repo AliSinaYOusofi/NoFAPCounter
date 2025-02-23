@@ -37,7 +37,7 @@ export async function POST(req) {
         }
 
         db = await openDB();
-        console.log(sanitizedUsername, sanitizedID)
+        
         const user = await db.get(
                 "SELECT * FROM users WHERE username = ? AND id = ?",
                 [sanitizedUsername, sanitizedID],
