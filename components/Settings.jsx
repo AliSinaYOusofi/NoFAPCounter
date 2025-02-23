@@ -48,6 +48,7 @@ export default function Settings() {
                 if (!response.ok) throw new Error("Failed to fetch user data");
                 const data = await response.json();
                 setUserData(data);
+                console.log(data, ' sett')
                 setFormData({
                     username: data.username,
                     goal_days: data.goal_days,
@@ -171,6 +172,25 @@ export default function Settings() {
         </AnimatePresence>
     );
 
+    const goalOptions = [
+        { value: 1, label: "1 day (Trial)" },
+        { value: 2, label: "2 days (Getting Started)" },
+        { value: 3, label: "3 days (Starter)" },
+        { value: 5, label: "5 days (Small Step)" },
+        { value: 7, label: "7 days (A Week)" },
+        { value: 10, label: "10 days" },
+        { value: 14, label: "14 days (Two Weeks)" },
+        { value: 21, label: "21 days (Challenge)" },
+        { value: 30, label: "30 days (1 Month)" },
+        { value: 45, label: "45 days" },
+        { value: 60, label: "60 days (2 Months)" },
+        { value: 90, label: "90 days (Recommended)" },
+        { value: 120, label: "120 days (4 Months)" },
+        { value: 180, label: "180 days (6 Months)" },
+        { value: 365, label: "365 days (1 Year)" },
+    ];
+
+
     if (loading) {
         return (
             <div className="h-screen bg-black w-full flex items-center justify-center">
@@ -200,7 +220,6 @@ export default function Settings() {
                 </motion.h1>
 
                 <div className="space-y-6">
-                    {/* Account Settings Section */}
                     <motion.form
                         onSubmit={handleSubmit}
                         className="space-y-6"
@@ -232,7 +251,6 @@ export default function Settings() {
                             </div>
                         </div>
 
-                        {/* Goal Settings Section */}
                         <div className="backdrop-blur-md bg-black/40 p-6 rounded-xl border border-gray-800/50">
                             <h2 className="text-xl font-semibold text-blue-400 mb-6 flex items-center gap-2">
                                 <Target size={20} />
@@ -253,45 +271,16 @@ export default function Settings() {
                                         }
                                         className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                                     >
-                                        <option value="1">1 day (Trial)</option>
-                                        <option value="2">
-                                            2 days (Getting Started)
-                                        </option>
-                                        <option value="3">
-                                            3 days (Starter)
-                                        </option>
-                                        <option value="5">
-                                            5 days (Small Step)
-                                        </option>
-                                        <option value="7">
-                                            7 days (A Week)
-                                        </option>
-                                        <option value="10">10 days</option>
-                                        <option value="14">
-                                            14 days (Two Weeks)
-                                        </option>
-                                        <option value="21">
-                                            21 days (Challenge)
-                                        </option>
-                                        <option value="30">
-                                            30 days (1 Month)
-                                        </option>
-                                        <option value="45">45 days</option>
-                                        <option value="60">
-                                            60 days (2 Months)
-                                        </option>
-                                        <option value="90">
-                                            90 days (Recommended)
-                                        </option>
-                                        <option value="120">
-                                            120 days (4 Months)
-                                        </option>
-                                        <option value="180">
-                                            180 days (6 Months)
-                                        </option>
-                                        <option value="365">
-                                            365 days (1 Year)
-                                        </option>
+                                        {
+                                            goalOptions.map((option) => (
+                                            <option
+                                                key={option.value}
+                                                value={option.value}
+                                                disabled={option.value <= userData?.currentStreak}
+                                            >
+                                                {option.label}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
 
@@ -316,7 +305,6 @@ export default function Settings() {
                             </div>
                         </div>
 
-                        {/* Save Button */}
                         <div className="flex items-center justify-between pt-4">
                             <div className="text-sm text-gray-400 flex items-center gap-2">
                                 <AlertCircle size={16} />
@@ -335,7 +323,6 @@ export default function Settings() {
                         </div>
                     </motion.form>
 
-                    {/* Danger Zone */}
                     <motion.div
                         className="backdrop-blur-md bg-black/40 p-6 rounded-xl border border-red-900/50"
                         initial={{ opacity: 0, y: 20 }}

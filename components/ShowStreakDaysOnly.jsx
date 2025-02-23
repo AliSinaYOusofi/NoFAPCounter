@@ -119,21 +119,22 @@ export default function ShowStreakDaysOnly() {
             const data = await response.json();
 
             if (response.ok) {
-                setLoading(false)
-                if (data?.LightningEffect) {
-                    setShowLightning(true);
-                    
-                    setTimeout(() => setShowLightning(false), 1000);
-                }
-
-                await sleep(2000)
-                
                 setNotification({
                     show: true,
                     message: data.message,
                     type: "info",
                     position: "top-center",
                 });
+
+                setUpdating(false)
+                
+                await sleep(2000)
+                
+                if (data?.LightningEffect) {
+                    setShowLightning(true);
+                    
+                    setTimeout(() => setShowLightning(false), 1000);
+                }
                 
                 setTimeout(() => {
                     setNotification({
@@ -261,20 +262,21 @@ export default function ShowStreakDaysOnly() {
 
                 <motion.button
                     onClick={handleUpdateStreak}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    
                     className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-lg font-semibold 
                               shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] 
                               transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    
                 >
                     Update Streak
                     {updating && (
-                        <span className="ml-3 loading loading-spinner loading-sm" />
+                        <span className="ml-3 my-auto mx-auto loading loading-spinner loading-sm" />
                     )}
                 </motion.button>
             </div>
 
-            {/* Toast notifications */}
             <Toast
                 show={notification.show}
                 message={notification.message}
