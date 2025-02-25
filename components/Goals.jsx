@@ -3,7 +3,6 @@ import { CreateGoalsCard } from "./CreateGoalsCard";
 import { GoalsCard } from "./GoalsCard";
 import { ArrowUp, ArrowDown, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { nanoid } from "nanoid";
 import RetryButton from "./global/RetryButton";
 import Toast from "./global/Toast";
 

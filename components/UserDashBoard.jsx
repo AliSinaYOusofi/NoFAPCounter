@@ -38,7 +38,7 @@ export function UserDashBoard() {
   const [error, setError] = useState(null)
   const [refresh, setRefresh] = useState(false)
 
-  const fetchUserData = useCallback(async () => {
+  const fetchUserData = async () => {
     try {
       const response = await fetch("/api/user_data", {
         method: "GET",
@@ -56,11 +56,11 @@ export function UserDashBoard() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
   useEffect(() => {
     fetchUserData()
-  }, [fetchUserData])
+  }, [refresh])
 
   if (loading) {
     return (
