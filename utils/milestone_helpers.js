@@ -1,23 +1,3 @@
-export async function createMilestone(db, userId, daysReached, milestoneType) {
-  const currentDate = new Date().toISOString().split('T')[0];
-  
-  try {
-    await db.run(
-      `INSERT INTO milestones (
-        user_id,
-        days_reached,
-        achieved_at,
-        milestone_type
-      ) VALUES (?, ?, ?, ?)`,
-      [userId, daysReached, currentDate, milestoneType]
-    );
-    return true;
-  } catch (error) {
-    console.error('Error creating milestone:', error);
-    return false;
-  }
-}
-
 export function checkMilestoneEligibility(streakCount) {
   const milestones = [];
   

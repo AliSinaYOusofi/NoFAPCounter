@@ -20,9 +20,9 @@ export default function ShowStreakDaysOnly() {
     const [refresh, setRefresh] = useState(false);
     const [animationKey, setAnimationKey] = useState(0);
     const [userRelapsed, setUserRelapsed] = useState(false);
-    const [updating, setUpdating] = useState(false)
-    const [showLightning, setShowLightning] = useState(false)
-    const [showGoalAcheivedCard, setShowGoalAcheivedCard] = useState(false)
+    const [updating, setUpdating] = useState(false);
+    const [showLightning, setShowLightning] = useState(false);
+    const [showGoalAcheivedCard, setShowGoalAcheivedCard] = useState(false);
 
     const [notification, setNotification] = useState({
         show: false,
@@ -33,7 +33,8 @@ export default function ShowStreakDaysOnly() {
 
     const [relapseNotification, setRelapseNotification] = useState({
         show: false,
-        message: "Your streak was reset due to inactivity. Starting from day one again!",
+        message:
+            "Your streak was reset due to inactivity. Starting from day one again!",
         type: "info",
         position: "bottom-right",
     });
@@ -100,9 +101,8 @@ export default function ShowStreakDaysOnly() {
     const digits = String(streak).padStart(4, "0").split("");
 
     const handleUpdateStreak = async () => {
-        
-        setUpdating(true)
-        
+        setUpdating(true);
+
         setNotification({
             show: false,
             message: "",
@@ -126,16 +126,16 @@ export default function ShowStreakDaysOnly() {
                     position: "top-center",
                 });
 
-                setUpdating(false)
-                
-                await sleep(2000)
-                
+                setUpdating(false);
+
+                await sleep(2000);
+
                 if (data?.LightningEffect) {
                     setShowLightning(true);
-                    
+
                     setTimeout(() => setShowLightning(false), 1000);
                 }
-                
+
                 setTimeout(() => {
                     setNotification({
                         show: false,
@@ -144,29 +144,30 @@ export default function ShowStreakDaysOnly() {
                         position: "top-center",
                     });
                 }, 5000);
-                
+
                 setStreak(data.currentStreak);
                 setLongestStreak(data.longestStreak);
                 setTotalCleanDays(data.totalCleanDays);
                 setUserRelapsed(data?.relapse);
-                
-                await sleep(1000)
+
+                await sleep(1000);
                 if (data?.relapse) {
                     setRelapseNotification({
                         show: true,
-                        message: "Your streak was reset due to inactivity. Starting from day one again!",
+                        message:
+                            "Your streak was reset due to inactivity. Starting from day one again!",
                         type: "info",
                         position: "bottom-right",
                     });
                 }
 
-                await sleep(2000)
-                if (data?.showCard) setShowGoalAcheivedCard(true)
+                await sleep(2000);
+                if (data?.showCard) setShowGoalAcheivedCard(true);
             }
         } catch (error) {
             setError("Failed to update streak");
         } finally {
-            setUpdating(false)
+            setUpdating(false);
         }
     };
 
@@ -189,8 +190,7 @@ export default function ShowStreakDaysOnly() {
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden px-4">
-            
-            { showLightning && <LightningEffect /> }
+            {showLightning && <LightningEffect />}
 
             <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
                 <AnimatePresence>
@@ -229,7 +229,7 @@ export default function ShowStreakDaysOnly() {
                 >
                     Days Strong
                 </motion.div>
-                
+
                 <motion.div
                     className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-lg sm:text-xl"
                     initial={{ opacity: 0, y: 10 }}
@@ -246,7 +246,7 @@ export default function ShowStreakDaysOnly() {
                         <span>Total: {totalCleanDays} days</span>
                     </div>
                 </motion.div>
-                
+
                 <motion.div
                     className="mt-4 text-xl sm:text-2xl text-blue-300/80 font-mono"
                     initial={{ opacity: 0, y: 10 }}
@@ -254,9 +254,9 @@ export default function ShowStreakDaysOnly() {
                     transition={{ delay: 1, duration: 0.5 }}
                 >
                     <span className="px-4 py-2 rounded-lg bg-blue-950/30 backdrop-blur-sm">
-                        {remainingTime.hours.toString().padStart(2, '0')}:
-                        {remainingTime.minutes.toString().padStart(2, '0')}:
-                        {remainingTime.seconds.toString().padStart(2, '0')}
+                        {remainingTime.hours.toString().padStart(2, "0")}:
+                        {remainingTime.minutes.toString().padStart(2, "0")}:
+                        {remainingTime.seconds.toString().padStart(2, "0")}
                     </span>
                 </motion.div>
 
@@ -264,15 +264,11 @@ export default function ShowStreakDaysOnly() {
                     onClick={handleUpdateStreak}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    
-                    className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-lg font-semibold 
-                              shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:shadow-[0_0_25px_rgba(37,99,235,0.6)] 
-                              transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95"
-                    
+                    className="mt-12 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xl tracking-widest"
                 >
                     Update Streak
                     {updating && (
-                        <span className="ml-3 my-auto mx-auto loading loading-spinner loading-sm" />
+                        <span className="ml-3 loading loading-spinner loading-sm" />
                     )}
                 </motion.button>
             </div>
@@ -282,19 +278,24 @@ export default function ShowStreakDaysOnly() {
                 message={notification.message}
                 type={notification.type}
                 position={notification.position}
-                onClose={() => setNotification((prev) => ({ ...prev, show: false }))}
+                onClose={() =>
+                    setNotification((prev) => ({ ...prev, show: false }))
+                }
             />
-            
+
             <Toast
                 show={relapseNotification.show}
                 message={relapseNotification.message}
                 type={relapseNotification.type}
                 position={relapseNotification.position}
-                onClose={() => setRelapseNotification((prev) => ({ ...prev, show: false }))}
+                onClose={() =>
+                    setRelapseNotification((prev) => ({ ...prev, show: false }))
+                }
             />
-            
-            { showGoalAcheivedCard && <AchievementAndStreakUpdate daysCompleted={streak}/>}
-      
+
+            {showGoalAcheivedCard && (
+                <AchievementAndStreakUpdate daysCompleted={streak} />
+            )}
         </div>
     );
 }

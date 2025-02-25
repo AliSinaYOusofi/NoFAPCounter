@@ -1,29 +1,34 @@
 import { NextResponse } from "next/server";
-import { openDB } from "@/database/db_connection";
 import jwt from "jsonwebtoken";
 const secretKey = process.env.SECRET_KEY;
-
+import { supabase } from "@/utils/supabase";
 export async function POST(req) {
-    let db;
+
     try {
         const token = req.cookies.get("token")?.value;
         const decoded = jwt.verify(token, secretKey);
         const { username, goal_days, motivationalMessage } = await req.json();
 
-        db = await openDB();
+        const { error } = await supabase
+            .from("users")
+            .update({
+                username: username,
+                goal_days: goal_days,
+                motivationalMessage: motivationalMessage,
+            })
+            .eq("id", decoded.id);
 
-        await db.run(
-            `UPDATE users 
-             SET username = ?, 
-                 goal_days = ?, 
-                 motivationalMessage = ?
-             WHERE id = ?`,
-            [username, goal_days, motivationalMessage, decoded.id]
-        );
+        if (error) {
+            console.error("Error updating user:", error);
+            return NextResponse.json(
+                { success: false, message: "Failed to update user" },
+                { status: 500 }
+            );
+        }
 
-        return NextResponse.json({ 
-            success: true, 
-            message: "Settings updated successfully" 
+        return NextResponse.json({
+            success: true,
+            message: "Settings updated successfully",
         });
     } catch (error) {
         console.error("Error updating settings:", error);
@@ -31,7 +36,5 @@ export async function POST(req) {
             { success: false, message: "Failed to update settings" },
             { status: 500 }
         );
-    } finally {
-        if (db) await db.close();
     }
-} 
+}

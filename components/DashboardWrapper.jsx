@@ -12,6 +12,7 @@ import Settings from "./Settings";
 import ContributionWrapper from "./global/ContributionWrapper";
 import FeedbackComponent from "./Feedback";
 import Hamburger from "hamburger-react";
+import SupportComponent from "./SupportComponent";
 
 export default function DashboardWrapper() {
     const [isOpen, setIsOpen] = useState(true);
@@ -25,9 +26,9 @@ export default function DashboardWrapper() {
         <div className="min-h-screen relative flex flex-col">
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed z-[100] top-4 left-4 backdrop-blur-md border-2 border-white   rounded-full text-white"
+                className="fixed z-[100]   border-white   rounded-full text-white"
             >
-                <Hamburger size={24} toggled={isOpen} toggle={setIsOpen} />
+                <Hamburger size={20} toggled={isOpen} toggle={setIsOpen} />
             </button>
             <div className="flex flex-1 overflow-hidden">
                 {isOpen && (
@@ -57,6 +58,7 @@ export default function DashboardWrapper() {
                     )}
                     {activeComponent === 'settings' && <Settings />}
                     {activeComponent === 'feedback' && <FeedbackComponent />}
+                    {activeComponent === 'support' && <SupportComponent />}
                 </div>
             </div>
         </div>

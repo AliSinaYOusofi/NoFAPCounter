@@ -17,7 +17,7 @@ const FeedbackComponent = () => {
         </h2>
         <div className="space-y-6">
             <p className="text-gray-300 text-lg">
-            We appreciate the time you take to give us feedback.  Feel free to reach out through any of the following
+            Thanks for the time you take to give feedback. You can send your feedback by these
             methods:
             </p>
             <div className="flex flex-col space-y-4">
@@ -39,8 +39,7 @@ const FeedbackComponent = () => {
             </a>
             </div>
             <p className="text-gray-400 mt-6">
-            We're committed to providing you with the best possible experience and support. Don't hesitate to get in touch
-            with any questions, suggestions, or concerns you may have. Also provide us with featuers you think this web app lacks.
+            If you think that this project lacks important please remind us so we can make this web app better.
             </p>
         </div>
         </motion.div>

@@ -10,6 +10,7 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete, setRefre
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [showUpdateCard, setShowUpdateCard] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const handleCopy = () => {
         navigator.clipboard.writeText(description);
@@ -22,8 +23,10 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete, setRefre
     };
 
     const confirmDeleteGoal = async () => {
+        setIsDeleting(true)
         await onDelete(id);
         setConfirmDelete(false);
+        setIsDeleting(false)
     };
 
     const toggleExpand = () => {
@@ -164,6 +167,9 @@ export function GoalsCard({ id, goal, description, createdAt, onDelete, setRefre
                                         onClick={confirmDeleteGoal}
                                     >
                                         Yes
+                                        {isDeleting && (
+                                            <span className="ml-3 loading loading-spinner loading-sm" />
+                                        )}
                                     </button>
                                     <button
                                         className="px-4 py-2 bg-gray-600 text-white rounded-full"

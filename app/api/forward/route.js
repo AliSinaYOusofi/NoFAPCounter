@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { openDB } from "@/database/db_connection";
 import { usernameValidator } from "@/utils/validators/usernameValidator";
 import validator from "validator";
 import jwt from "jsonwebtoken";
 import { idValidator } from "@/utils/validators/id_validator";
 import { serialize } from "cookie";
-
+import { supabase } from "@/utils/supabase";
 const secret_key = process.env.SECRET_KEY;
 
 export async function POST(req) {
-    let db;
 
     try {
         const { username, id } = await req.json();
@@ -36,26 +34,17 @@ export async function POST(req) {
             );
         }
 
-        db = await openDB();
-        
-        const user = await db.get(
-                "SELECT * FROM users WHERE username = ? AND id = ?",
-                [sanitizedUsername, sanitizedID],
-                (err, row) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(row);
-                    }
-                }
-            );
-       
+        const { data: user, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("username", sanitizedUsername)
+            .eq("id", sanitizedID)
+            .single();
 
-        if (!user) {
-            console.warn("Invalid credentials");
+        if (error || !user) {
             return NextResponse.json(
-                { success: false, message: "Invalid credentials" },
-                { status: 401 }
+                { success: false, error: "User not found" },
+                { status: 404 }
             );
         }
 
@@ -65,14 +54,14 @@ export async function POST(req) {
             sameSite: "strict",
             maxAge: 60 * 60 * 24 * 365 * 10,
             path: "/",
-        }
+        };
 
         const token = jwt.sign(
             { username: sanitizedUsername, id: sanitizedID },
             secret_key
         );
 
-        const cookieString = serialize("token", token, cookieOptions)
+        const cookieString = serialize("token", token, cookieOptions);
 
         return NextResponse.json(
             {
@@ -80,12 +69,12 @@ export async function POST(req) {
                 message: "Login successful",
                 token,
             },
-            { 
+            {
                 status: 200,
                 headers: {
                     "Set-Cookie": cookieString,
                     "Content-Type": "application/json",
-                }
+                },
             }
         );
     } catch (error) {
@@ -97,9 +86,5 @@ export async function POST(req) {
             },
             { status: 500 }
         );
-    } finally {
-        if (db) {
-            db.close();
-        }
     }
 }

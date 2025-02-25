@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
-import { openDB } from "@/database/db_connection";
 import { usernameValidator } from "@/utils/validators/usernameValidator";
 import validator from "validator";
-import { createUsersTable } from "@/database/create_users_table";
 import jwt from "jsonwebtoken";
 import { idValidator } from "@/utils/validators/id_validator";
 import { serialize } from "cookie";
-import { createStreakLogsTable } from "@/database/create_streak_logs";
-import { createMilestonesTable } from "@/database/create_milestones_table";
+import { supabase } from "@/utils/supabase";
 
 const secret_key = process.env.SECRET_KEY;
 
@@ -21,18 +18,15 @@ function signToken(payload, secret) {
 }
 
 export async function POST(req) {
-  let db;
 
   try {
     const { username, motivationalMessage, id, goal_days } = await req.json();
 
-    // Sanitize inputs
     const sanitizedUsername = validator.escape(username);
     const sanitizedMotivationalMessage = motivationalMessage ? validator.escape(motivationalMessage) : '';
     const sanitizedID = validator.escape(id);
     const sanitizedGoalDays = parseInt(goal_days) || 90; // Default to 90 if not provided
 
-    // Validate required fields
     if (!sanitizedUsername || !sanitizedID) {
       return NextResponse.json(
         { success: false, message: "Missing required fields" },
@@ -40,7 +34,6 @@ export async function POST(req) {
       );
     }
 
-    // Validate format of fields
     if (!usernameValidator(sanitizedUsername) || !idValidator(sanitizedID)) {
       return NextResponse.json(
         { success: false, message: "Invalid input format" },
@@ -48,20 +41,22 @@ export async function POST(req) {
       );
     }
 
-    db = await openDB();
-    await createUsersTable();
-    await createStreakLogsTable();
-    await createMilestonesTable()
-
     // Check if ID already exists
-    const existingUser = await db.get(
-      "SELECT id FROM users WHERE id = ?",
-      [sanitizedID]
-    );
+    const { data: existingUser, error: selectError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('id', sanitizedID);
 
-    if (existingUser) {
+    if (selectError) {
       return NextResponse.json(
         { success: false, message: "ID already exists" },
+        { status: 401 }
+      );
+    }
+
+    if (existingUser && existingUser.length > 0) {
+      return NextResponse.json(
+        { success: false, message: 'ID already exists' },
         { status: 401 }
       );
     }
@@ -70,62 +65,67 @@ export async function POST(req) {
     const currentDate = new Date().toISOString().split('T')[0];
 
     // Insert new user
-    await db.run(
-      `INSERT INTO users (
-        id, 
-        username, 
-        currentStreak,
-        longestStreak,
-        totalCleanDays,
-        motivationalMessage,
-        started_at,
-        updated_at,
-        goal_days
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        sanitizedID,
-        sanitizedUsername,
-        0,
-        0,
-        0,
-        sanitizedMotivationalMessage,
-        currentDate,
-        currentDate,
-        sanitizedGoalDays
-      ]
-    );
+    const { error: userInsertError } = await supabase.from('users').insert([
+      {
+        id: sanitizedID,
+        username: sanitizedUsername,
+        currentStreak: 0,
+        longestStreak: 0,
+        totalCleanDays: 0,
+        motivationalMessage: sanitizedMotivationalMessage,
+        started_at: currentDate,
+        updated_at: currentDate,
+        goal_days: sanitizedGoalDays,
+      },
+    ]);
 
-    // Create initial milestone for starting the journey
-    await db.run(
-      `INSERT INTO milestones (
-        user_id,
-        days_reached,
-        achieved_at,
-        milestone_type
-      ) VALUES (?, ?, ?, ?)`,
-      [
-        sanitizedID,
-        0,
-        currentDate,
-        'personal_best'
-      ]
-    );
+    if (userInsertError) {
+      console.error('Error inserting user:', userInsertError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to create account' },
+        { status: 500 }
+      );
+    }
+
+    // Insert initial milestone into the "milestones" table
+    const { error: milestoneError } = await supabase
+      .from('milestones')
+      .insert([
+        {
+          user_id: sanitizedID,
+          days_reached: 0,
+          achieved_at: currentDate,
+          milestone_type: 'personal_best',
+        },
+      ]);
+
+    if (milestoneError) {
+      console.error('Error inserting milestone:', milestoneError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to create milestone' },
+        { status: 500 }
+      );
+    }
 
     // Create initial streak log
-    await db.run(
-      `INSERT INTO streak_logs (
-        user_id,
-        date,
-        status,
-        streak_count
-      ) VALUES (?, ?, ?, ?)`,
-      [
-        sanitizedID,
-        currentDate,
-        'clean',
-        0
-      ]
-    );
+    const { error: streakLogError } = await supabase
+      .from('streak_logs')
+      .insert([
+        {
+          user_id: sanitizedID,
+          date: currentDate,
+          status: 'clean',
+          streak_count: 0,
+        },
+      ]);
+
+    if (streakLogError) {
+      console.error('Error inserting streak log:', streakLogError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to create streak log' },
+        { status: 500 }
+      );
+    }
 
     const token = await signToken(
       { username: sanitizedUsername, id: sanitizedID },
@@ -141,8 +141,6 @@ export async function POST(req) {
     };
 
     const cookieString = serialize("token", token, cookieOptions);
-
-    await db.close();
 
     return NextResponse.json(
       {
@@ -160,7 +158,6 @@ export async function POST(req) {
     );
 
   } catch (error) {
-    if (db) await db.close();
     console.error("Error in submit_form:", error);
 
     return NextResponse.json(
