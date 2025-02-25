@@ -194,7 +194,7 @@ export default function Settings() {
     if (loading) {
         return (
             <div className="h-screen bg-black w-full flex items-center justify-center">
-                <span className="loading loading-spinner text-blue-500"></span>
+                <span className="loading loading-spinner text-white"></span>
             </div>
         );
     }

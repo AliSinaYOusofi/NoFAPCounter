@@ -1,10 +1,9 @@
-import { openDB } from "@/database/db_connection";
 import { NextResponse } from "next/server";
 const secretKey = process.env.SECRET_KEY;
 import jwt from "jsonwebtoken";
+import { supabase } from "@/utils/supabase";
 export async function POST(req) {
   try {
-    const db = await openDB();
     const auth_token = req.cookies.get("token")?.value;
     
     if (!auth_token) {
@@ -21,8 +20,10 @@ export async function POST(req) {
           { status: 401 }
       );
     }
-    const user = await db.get(
-      `SELECT 
+    
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .select(`
         currentStreak, 
         longestStreak, 
         updated_at,
@@ -30,17 +31,20 @@ export async function POST(req) {
         motivationalMessage,
         totalCleanDays,
         started_at
-       FROM users WHERE id = ?`,
-      [decoded.id]
-    );
+      `)
+      .eq("id", decoded.id)
+      .single();
 
-    if (!user) {
-      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({
       success: true,
-      ...user  // This will include all user fields
+      ...user
     });
 
   } catch (error) {

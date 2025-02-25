@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { openDB } from "@/database/db_connection";
 
+import { supabase } from "@/utils/supabase";
 const secretKey = process.env.SECRET_KEY;
 
 export async function POST(request) {
-    let db;
+    
     const auth_token = request.cookies.get("token")?.value;
     let decoded;
 
@@ -20,21 +20,23 @@ export async function POST(request) {
 
     try {
         const { goal } = await request.json();
-        db = await openDB();
 
-        
-        const currentStreak = await db.get(
-            "SELECT goal_days FROM users WHERE id = ?",
-            [decoded.id]
-        );
+        // Fetch user's current goal_days
+        const { data: currentStreak, error: fetchError } = await supabase
+            .from("users")
+            .select("goal_days")
+            .eq("id", decoded.id)
+            .single();
 
-        if (!currentStreak) {
+        if (fetchError) {
+            console.error("Error fetching user streak:", fetchError);
             return NextResponse.json(
                 { success: false, message: "User streak not found" },
                 { status: 404 }
             );
         }
-        
+
+        // Check if the goal is already set
         if (Number(goal) === currentStreak.goal_days) {
             return NextResponse.json(
                 {
@@ -46,10 +48,19 @@ export async function POST(request) {
             );
         }
 
-        await db.run(
-            "UPDATE users SET goal_days = ? WHERE id = ?",
-            [goal, decoded.id]
-        );
+        // Update goal_days
+        const { error: updateError } = await supabase
+            .from("users")
+            .update({ goal_days: goal })
+            .eq("id", decoded.id);
+
+        if (updateError) {
+            console.error("Error updating goal:", updateError);
+            return NextResponse.json(
+                { success: false, message: "Failed to update goal" },
+                { status: 500 }
+            );
+        }
 
         return NextResponse.json(
             {
@@ -64,9 +75,5 @@ export async function POST(request) {
             { success: false, message: "Error updating streak" },
             { status: 500 }
         );
-    } finally {
-        if (db) {
-            await db.close();
-        }
     }
 }

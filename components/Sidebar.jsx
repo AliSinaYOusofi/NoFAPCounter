@@ -11,8 +11,10 @@ import {
   Zap,
   BarChartIcon as ChartNoAxesColumnIncreasing,
   MessageCircle,
+  Gift,
 } from "lucide-react"
 import handleLogout from "@/utils/handle_logout"
+import SupportComponent from "./SupportComponent"
 
 const sidebarVariants = {
   open: {
@@ -68,6 +70,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
     { name: "Settings", icon: <Settings className="mr-2" />, component: "settings" },
     { name: "Graph", icon: <ChartNoAxesColumnIncreasing className="mr-2" />, component: "graph" },
     { name: "Feedback", icon: <MessageCircle className="mr-2" />, component: "feedback" },
+    { name: "Support", icon: <Gift className="mr-2" />, component: "support" },
     
   ]
   const [loggingOut, setLoggingout] = useState(false)
