@@ -88,7 +88,7 @@ const SupportComponent = () => {
                                 <span>Buy Me a Coffee</span>
                             </a>
                             <a
-                                href="https://www.paypal.me/yourusername" // Replace with your actual PayPal.me link
+                                href="https://www.paypal.com/paypalme/aliyousufi99" // Replace with your actual PayPal.me link
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="bg-[#003087] text-white hover:bg-[#003087]/90 transition-colors flex items-center justify-center gap-3 text-sm font-medium w-full py-2.5 rounded-lg"

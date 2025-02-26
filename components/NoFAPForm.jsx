@@ -170,7 +170,7 @@ export function NofapForm({ className }) {
               <input
                 type="text"
                 name="id"
-                placeholder="Enter your unique ID"
+                placeholder="Enter your unique ID : 1, 2, jhon3, 123jhon, ..."
                 className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                 required
                 disabled={state.pending}
@@ -188,7 +188,7 @@ export function NofapForm({ className }) {
               <input
                 type="text"
                 name="username"
-                placeholder="Enter your username"
+                placeholder="Enter your username: jhon, laura, ..."
                 className="w-full p-3 rounded-lg bg-black/60 border border-gray-800 text-gray-200 focus:border-blue-500 transition-colors"
                 required
                 disabled={state.pending}

@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Check, BadgeAlert, CircleX, User } from "lucide-react";
-import { usernameValidator } from "@/utils/validators/usernameValidator";
-import { idValidator } from "@/utils/validators/id_validator";
-import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react"
+import { Check, BadgeAlert, CircleX, User } from "lucide-react"
+import { usernameValidator } from "@/utils/validators/usernameValidator"
+import { idValidator } from "@/utils/validators/id_validator"
+import { motion, AnimatePresence } from "framer-motion"
+import { useRouter } from "next/navigation"
 
 const loginAction = async (formData) => {
   try {
@@ -15,74 +15,83 @@ const loginAction = async (formData) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(Object.fromEntries(formData)),
-    });
+    })
 
     if (response.ok) {
-      const json = await response.json();
-      return { success: json.success };
+      const json = await response.json()
+      return { success: json.success }
     }
 
     return {
       success: false,
       error: "Invalid ID or Username",
-    };
+    }
   } catch (error) {
     return {
       success: false,
       error: error?.message || "Login failed",
-    };
+    }
   }
-};
+}
 
 const validateForm = (formData) => {
-  const errors = {};
+  const errors = {}
 
   if (!usernameValidator(formData.get("username"))) {
-    errors.username = "Invalid username";
+    errors.username = "Invalid username"
   }
 
   if (!idValidator(formData.get("id"))) {
-    errors.id = "Invalid ID format";
+    errors.id = "Invalid ID format"
   }
 
-  return errors;
-};
+  return errors
+}
 
 export function LoginForm({ className }) {
   const [state, setState] = useState({
     success: false,
     errors: null,
     pending: false,
-  });
-  const router = useRouter();
+  })
+  const [isClient, setIsClient] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const formData = new FormData(event.target);
-    const errors = validateForm(formData);
+    const formData = new FormData(event.target)
+    const errors = validateForm(formData)
 
     if (Object.keys(errors).length > 0) {
-      setState({ success: false, errors: errors, pending: false });
-      return;
+      setState({ success: false, errors: errors, pending: false })
+      return
     }
 
-    setState({ success: false, errors: null, pending: true });
-    const result = await loginAction(formData);
+    setState({ success: false, errors: null, pending: true })
+    const result = await loginAction(formData)
 
     if (result.success) {
-      setState({ success: true, errors: null, pending: false });
+      setState({ success: true, errors: null, pending: false })
       setTimeout(() => {
-        router.push("/dashboard");
-      }, 1000);
+        router.push("/dashboard")
+      }, 1000)
     } else {
       setState({
         success: false,
         errors: { form: result.error },
         pending: false,
-      });
+      })
     }
-  };
+  }
+
+  if (!isClient) {
+    return <div className="h-screen flex items-center justify-center"> <span className="loading loading-spinner"> </span> </div>
+  }
 
   return (
     <div className="min-h-screen w-full md:px-0 px-4 flex items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black text-white">
@@ -105,9 +114,7 @@ export function LoginForm({ className }) {
                 <span>Login successful! Redirecting...</span>
               </div>
               <CircleX
-                onClick={() =>
-                  setState({ success: false, errors: null, pending: false })
-                }
+                onClick={() => setState({ success: false, errors: null, pending: false })}
                 className="w-5 h-5 cursor-pointer hover:text-green-300 transition-colors"
               />
             </motion.div>
@@ -125,9 +132,7 @@ export function LoginForm({ className }) {
                 <span>{state.errors.form || "Login failed. Try again!"}</span>
               </div>
               <CircleX
-                onClick={() =>
-                  setState({ success: false, errors: null, pending: false })
-                }
+                onClick={() => setState({ success: false, errors: null, pending: false })}
                 className="w-5 h-5 cursor-pointer hover:text-red-300 transition-colors"
               />
             </motion.div>
@@ -148,9 +153,7 @@ export function LoginForm({ className }) {
               required
               disabled={state.pending}
             />
-            {state.errors?.id && (
-              <p className="mt-2 text-red-400 text-sm">{state.errors.id}</p>
-            )}
+            {state.errors?.id && <p className="mt-2 text-red-400 text-sm">{state.errors.id}</p>}
           </div>
 
           <div className="form-control">
@@ -166,9 +169,7 @@ export function LoginForm({ className }) {
               required
               disabled={state.pending}
             />
-            {state.errors?.username && (
-              <p className="mt-2 text-red-400 text-sm">{state.errors.username}</p>
-            )}
+            {state.errors?.username && <p className="mt-2 text-red-400 text-sm">{state.errors.username}</p>}
           </div>
         </div>
 
@@ -180,17 +181,15 @@ export function LoginForm({ className }) {
           disabled={state.pending}
         >
           Login
-          {state.pending && (
-            <span className="loading loading-spinner loading-sm" />
-          )}
+          {state.pending && <span className="loading loading-spinner loading-sm" />}
         </motion.button>
-        
+
         <div className="text-center mt-4">
-            <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
-              Don't have an account? Sign up
-            </a>
-          </div>
+          <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Don't have an account? Sign up
+          </a>
+        </div>
       </motion.form>
     </div>
-  );
+  )
 }

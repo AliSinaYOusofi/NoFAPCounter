@@ -23,6 +23,7 @@ export default function ShowStreakDaysOnly() {
     const [updating, setUpdating] = useState(false);
     const [showLightning, setShowLightning] = useState(false);
     const [showGoalAcheivedCard, setShowGoalAcheivedCard] = useState(false);
+    const [goalDays, setGoalDays] = useState(0)
 
     const [notification, setNotification] = useState({
         show: false,
@@ -67,6 +68,8 @@ export default function ShowStreakDaysOnly() {
                 setStreak(data?.currentStreak || 0);
                 setLongestStreak(data?.longestStreak || 0);
                 setTotalCleanDays(data?.totalCleanDays || 0);
+                setGoalDays(data?.goal_days)
+                console.log(data)
             } catch (error) {
                 setError("Error fetching resource");
             } finally {
@@ -128,13 +131,13 @@ export default function ShowStreakDaysOnly() {
 
                 setUpdating(false);
 
-                await sleep(2000);
+                // await sleep(2000);
 
-                if (data?.LightningEffect) {
-                    setShowLightning(true);
+                // if (data?.LightningEffect) {
+                //     setShowLightning(true);
 
-                    setTimeout(() => setShowLightning(false), 1000);
-                }
+                //     setTimeout(() => setShowLightning(false), 1000);
+                // }
 
                 setTimeout(() => {
                     setNotification({
@@ -150,7 +153,7 @@ export default function ShowStreakDaysOnly() {
                 setTotalCleanDays(data.totalCleanDays);
                 setUserRelapsed(data?.relapse);
 
-                await sleep(1000);
+                // await sleep(1000);
                 if (data?.relapse) {
                     setRelapseNotification({
                         show: true,
@@ -190,7 +193,9 @@ export default function ShowStreakDaysOnly() {
 
     return (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden px-4">
-            {showLightning && <LightningEffect />}
+            {/* 
+            will shortly be deployed
+            {showLightning && <LightningEffect />} */}
 
             <div className="relative z-10 w-full max-w-4xl mx-auto text-center">
                 <AnimatePresence>
@@ -294,7 +299,7 @@ export default function ShowStreakDaysOnly() {
             />
 
             {showGoalAcheivedCard && (
-                <AchievementAndStreakUpdate daysCompleted={streak} />
+                <AchievementAndStreakUpdate showUpdateGoals={goalDays}  daysCompleted={streak} />
             )}
         </div>
     );

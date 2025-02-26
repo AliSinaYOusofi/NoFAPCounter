@@ -136,7 +136,7 @@ export function Sidebar({ isOpen, onItemClick, activeComponent, setActiveCompone
         >
           <LogOut className="w-5 h-5 mr-3" />
           <span className="font-medium">Logout</span>
-          {loggingOut && <span className="loading loading-spinner ml-10"></span>}
+          {loggingOut && <span className="loading loading-spinner loading-sm ml-10"></span>}
         </motion.button>
       </motion.div>
     </motion.div>
