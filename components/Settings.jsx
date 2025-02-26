@@ -94,6 +94,7 @@ export default function Settings() {
     };
 
     const handleDeleteAccount = async () => {
+        setDeleting(true)
         try {
             const response = await fetch("/api/delete_account", {
                 method: "DELETE",
@@ -105,6 +106,8 @@ export default function Settings() {
         } catch (error) {
             setError("Failed to delete account");
         } finally {
+            setDeleting(false)
+            setShowDeleteModal(false)
         }
     };
 
@@ -163,6 +166,9 @@ export default function Settings() {
                                     whileTap={{ scale: 0.98 }}
                                 >
                                     Delete Account
+                                    {deleting && (
+                                            <span className="ml-3 loading loading-spinner loading-sm" />
+                                        )}
                                 </motion.button>
                             </div>
                         </div>
